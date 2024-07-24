@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layoutDirection="rtl"
+    android:layout_height="match_parent"
+    tools:context=".OtpActivity"
+    android:overScrollMode="never"
+    android:scrollbars="none">
+    <LinearLayout
+        android:layout_marginTop="80dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="130dp"
+            android:layout_height="130dp"
+            android:layout_marginTop="80dp"
+            android:layout_marginEnd="25dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_otp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="OTP"
+            android:textColor="@color/black"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/hacen_beirut_bight"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="أدخل الرمز"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/hacen_beirut_bight"
+            />
+
+        <LinearLayout
+            android:id="@+id/categoriesLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
+
+
+            <EditText
+                android:id="@+id/inputcode6"
+                android:layout_width="48dp"
+                android:layout_height="60dp"
+                android:layout_marginStart="4dp"
+                android:fontFamily="@font/hacen_beirut_bight"
+                android:gravity="center"
+                android:imeOptions="actionGo"
+                android:importantForAutofill="no"
+                android:inputType="number"
+                android:maxLength="1"
+                android:hint="."
+                android:textColor="@color/black"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                tools:ignore="LabelFor" />
+
+            <EditText
+                android:id="@+id/inputcode5"
+                android:layout_width="48dp"
+                android:layout_height="60dp"
+                android:layout_marginStart="4dp"
+                android:fontFamily="@font/hacen_beirut_bight"
+                android:gravity="center"
+                android:imeOptions="actionPrevious"
+                android:importantForAutofill="no"
+                android:inputType="number"
+                android:maxLength="1"
+                android:textColor="@color/black"
+                android:hint="."
+                android:textSize="24sp"
+                android:textStyle="bold"
+                tools:ignore="LabelFor" />
+
+            <EditText
+                android:id="@+id/inputcode4"
+                android:layout_width="48dp"
+                android:layout_height="60dp"
+                android:layout_marginStart="4dp"
+                android:fontFamily="@font/hacen_beirut_bight"
+                android:gravity="center"
+                android:imeOptions="actionPrevious"
+                android:importantForAutofill="no"
+                android:inputType="number"
+                android:maxLength="1"
+                android:textColor="@color/black"
+                android:hint="."
+                android:textSize="24sp"
+                android:textStyle="bold"
+                tools:ignore="LabelFor" />
+
+            <EditText
+                android:id="@+id/inputcode3"
+                android:layout_width="48dp"
+                android:layout_height="60dp"
+                android:layout_marginStart="4dp"
+                android:gravity="center"
+                android:imeOptions="actionPrevious"
+                android:importantForAutofill="no"
+                android:inputType="number"
+                android:maxLength="1"
+                android:hint="."
+                android:fontFamily="@font/hacen_beirut_bight"
+                android:textColor="@color/black"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                tools:ignore="LabelFor" />
+            <EditText
+                android:id="@+id/inputcode2"
+                android:layout_width="48dp"
+                android:layout_height="60dp"
+                android:layout_marginStart="4dp"
+                android:gravity="center"
+                android:imeOptions="actionPrevious"
+                android:importantForAutofill="no"
+                android:inputType="number"
+                android:maxLength="1"
+                android:hint="."
+                android:fontFamily="@font/hacen_beirut_bight"
+                android:textColor="@color/black"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                tools:ignore="LabelFor" />
+
+            <EditText
+                android:id="@+id/inputcode1"
+                android:layout_width="48dp"
+                android:layout_height="60dp"
+                android:layout_marginStart="4dp"
+                android:gravity="center"
+                android:imeOptions="actionPrevious"
+                android:importantForAutofill="no"
+                android:inputType="number"
+                android:maxLength="1"
+                android:hint="."
+                android:fontFamily="@font/hacen_beirut_bight"
+                android:textColor="@color/black"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                tools:ignore="LabelFor" />
+
+
+
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/categoriesLayout2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="لم يصلني اي رمز"
+                android:layout_marginStart="10dp"
+                android:textColor="@color/grey"
+                android:textSize="20sp"
+                android:layout_marginEnd="10dp"
+                android:fontFamily="@font/hacen_beirut_bight"
+                />
+            <TextView
+                android:id="@+id/resendTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="اعادة الارسال"
+                android:textColor="@color/tomato_red"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/hacen_beirut_bight"
+                />
+
+
+        </LinearLayout>
+        <Button
+            android:id="@+id/buyButton"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="متابعة"
+            android:layout_gravity="center"
+            android:background="@drawable/tomato_button"
+            android:textColor="@color/black"
+            android:textSize="25sp"
+            android:fontFamily="@font/hacen_beirut_bight"
+            android:textStyle="bold"
+            android:layout_below="@id/totalWithDeliveryTextView"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp"/>
+
+    </LinearLayout>
+</ScrollView>
