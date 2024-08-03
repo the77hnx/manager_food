@@ -1,5 +1,6 @@
 package com.example.manager_food.Fragement;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,16 +13,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.manager_food.Adapter.OngoingOrdersAdapter;
+import com.example.manager_food.OngoingOrderActivity;
 import com.example.manager_food.R;
 import com.example.manager_food.model.OrderItem;
 
 import java.util.ArrayList;
 import java.util.List;
-
 public class OngoingOrdersFragment extends Fragment {
 
     private RecyclerView recyclerViewOrders;
-    private OngoingOrdersAdapter ongoingOrdersAdapter;
+    private OngoingOrdersAdapter orderAdapter;
     private List<OrderItem> orderList;
 
     @Nullable
@@ -36,15 +37,14 @@ public class OngoingOrdersFragment extends Fragment {
         if (getArguments() != null) {
             orderList = getArguments().getParcelableArrayList("orders");
             orderList = filterOngoingOrders(orderList);
-
         } else {
             orderList = new ArrayList<>();
         }
 
         List<OrderItem> filteredOrders = filterOngoingOrders(orderList);
 
-        ongoingOrdersAdapter = new OngoingOrdersAdapter(getContext(), filteredOrders);
-        recyclerViewOrders.setAdapter(ongoingOrdersAdapter);
+        orderAdapter = new OngoingOrdersAdapter(getContext(), filteredOrders, this::onOrderClick);
+        recyclerViewOrders.setAdapter(orderAdapter);
 
         return view;
     }
@@ -67,5 +67,18 @@ public class OngoingOrdersFragment extends Fragment {
         args.putParcelableArrayList("orders", new ArrayList<>(orders));
         fragment.setArguments(args);
         return fragment;
+    }
+
+    private void onOrderClick(OrderItem order) {
+        Intent intent = new Intent(getActivity(), OngoingOrderActivity.class);
+        intent.putExtra("CUSTOMER_NAME", order.getCustomerName());
+        intent.putExtra("ORDER_DATE", order.getOrderDate());
+        intent.putExtra("ORDER_TOTAL", order.getOrderTotal());
+        intent.putExtra("ITEM_NAME", order.getItemName());
+        intent.putExtra("ITEM_QUANTITY", order.getItemQuantity());
+        intent.putExtra("ITEM_PRICE", order.getItemPrice());
+        intent.putExtra("ORDER_MESSAGE", order.getOrderMessage());
+        intent.putExtra("ORDER_STATUS", order.getOrderStatus());
+        startActivity(intent);
     }
 }

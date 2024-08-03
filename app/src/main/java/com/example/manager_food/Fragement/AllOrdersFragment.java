@@ -38,7 +38,7 @@ public class AllOrdersFragment extends Fragment {
             orderList = new ArrayList<>();
         }
 
-        orderAdapter = new OrderAdapter(getContext(), orderList);
+        orderAdapter = new OrderAdapter((List<OrderItem>) getContext(), (OrderAdapter.OnOrderClickListener) orderList);
         recyclerViewOrders.setAdapter(orderAdapter);
 
         return view;

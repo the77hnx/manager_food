@@ -1,5 +1,6 @@
 package com.example.manager_food;
 
+
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -34,6 +35,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ShowShopDetailsActivity extends AppCompatActivity {
+    private static final int PICK_IMAGE_REQUEST = 1; // Request code for image picking
+
 
     private RecyclerView recyclerViewCat;
     private RecyclerView recyclerViewItem;
@@ -42,6 +45,8 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
     private Switch offerSwitch;
     private TextView shopNameTextView, valCompletedTextView, valRatingTextView, offerStatusTextView;
     private Button addCategoryButton, addProductButton;
+    private Uri selectedImageUri; // To store the URI of the selected image
+
 
     private List<Item> itemList;
     List<Category> categoryList;
@@ -100,17 +105,18 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
         categoryList.add(new Category("vegetables", R.drawable.vegetables)); // Replace with actual image resource
         categoryList.add(new Category("Drinks", R.drawable.drinks)); // Replace with actual image resource
 
+
 // Initialize category adapter with Category objects
         categoryAdapter = new CategoryAdapter(categoryList, this);
 
 
         // Initialize the item list
         itemList = new ArrayList<>();
-        itemList.add(new Item("pizza", "Fresh and juicy oranges", 150, R.drawable.pizza, "pastries"));
-        itemList.add(new Item("pasta", "Crisp and sweet apples", 200, R.drawable.pasta, "pastries"));
-        itemList.add(new Item("burger", "Crunchy carrots", 100, R.drawable.burger, "pastries"));
-        itemList.add(new Item("Potato Chips", "Crispy potato chips", 50, R.drawable.potato, "vegetables"));
-        itemList.add(new Item("chicken", "Refreshing cola drink", 80, R.drawable.chicken, "Meat"));
+        itemList.add(new Item("بيتزا", "Fresh and juicy oranges", 150, R.drawable.pizza, "pastries"));
+        itemList.add(new Item("معكرونة", "Crisp and sweet apples", 200, R.drawable.pasta, "pastries"));
+        itemList.add(new Item("برغر", "Crunchy carrots", 100, R.drawable.burger, "pastries"));
+        itemList.add(new Item("بطاطا محمصة", "Crispy potato chips", 50, R.drawable.potato, "vegetables"));
+        itemList.add(new Item("دجاج", "Refreshing cola drink", 80, R.drawable.chicken, "Meat"));
 
         // Initialize category adapter
 
@@ -133,13 +139,23 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
 
         // Add category button click listener
         addCategoryButton.setOnClickListener(v -> {
-            showAddCategoryDialog();
+            Intent addCategoryIntent = new Intent(ShowShopDetailsActivity.this, AddNewCategoryActivity.class);
+            startActivity(addCategoryIntent);
         });
 
         // Add product button click listener
         addProductButton.setOnClickListener(v -> {
-            showAddItemDialog();
+            Intent addProductIntent = new Intent(ShowShopDetailsActivity.this, AddNewItemActivity.class);
+            ArrayList<String> categoryNames = new ArrayList<>();
+            for (Category category : categoryList) {
+                categoryNames.add(category.getName()); // Use the method that returns the category name
+            }
+// Pass the categories list
+            addProductIntent.putStringArrayListExtra("CATEGORIES_LIST", categoryNames);
+            startActivity(addProductIntent);
+
         });
+
 
         // Set up item click listener for ItemsAdapter
         itemsAdapter.setOnItemClickListener(new ItemsAdapter.OnItemClickListener() {
@@ -150,8 +166,25 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
             }
             @Override
             public void onEditClick(Item item) {
-                showEditItemDialog(item);
+                Intent editItemIntent = new Intent(ShowShopDetailsActivity.this, AddNewItemActivity.class);
+                editItemIntent.putExtra("ITEM_NAME", item.getName());
+                editItemIntent.putExtra("ITEM_PRICE", String.valueOf(item.getPrice())); // Ensure price is a string
+                editItemIntent.putExtra("ITEM_DESCRIPTION", item.getDescription());
+                editItemIntent.putExtra("ITEM_TYPE", item.getCategory());
+                editItemIntent.putExtra("ITEM_IMAGE_RES_ID", item.getImageResId());
+
+                ArrayList<String> categoryNames = new ArrayList<>();
+                for (Category category : categoryList) {
+                    categoryNames.add(category.getName()); // Use the method that returns the category name
+                }
+// Pass the categories list
+                editItemIntent.putStringArrayListExtra("CATEGORIES_LIST", categoryNames);
+
+                startActivity(editItemIntent);
             }
+
+
+
 
             @Override
             public void onRemoveClick(Item item) {
@@ -203,6 +236,7 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
         setupRecyclerViews();
 
         // Load initial data (dummy data)
+
     }
 
     // Method to update the offerStatusTextView based on the Switch state
@@ -235,149 +269,6 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
         recyclerViewItem.setAdapter(itemsAdapter);
     }
 
-    // Method to show the Add Category Dialog
-    private void showAddCategoryDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.add_new_category_dialog_fragement, null);
-
-        builder.setView(dialogView);
-
-        AlertDialog dialog = builder.create();
-
-        // Initialize dialog views and set click listeners
-        TextView saveButton = dialogView.findViewById(R.id.btnSavecat);
-        TextView categoryNameTextView = dialogView.findViewById(R.id.etfullnamecat);
-        // Assuming you have an ImageView to pick or set the image resource
-        ImageView categoryImageView = dialogView.findViewById(R.id.imageViewup); // Replace with actual image picking logic
-
-        saveButton.setOnClickListener(v -> {
-            String newCategoryName = categoryNameTextView.getText().toString().trim();
-            // Get selected image resource id (example placeholder here)
-            int selectedImageResId = R.drawable.image_for_card; // Replace with actual image selection logic
-
-            if (!newCategoryName.isEmpty()) {
-                Category newCategory = new Category(newCategoryName, selectedImageResId);
-                categoryAdapter.addCategory(newCategory);
-                dialog.dismiss();
-            } else {
-                // Show an error message or handle the case when fields are empty
-            }
-        });
-
-        dialog.show();
-
-
-    }
-
-
-    // Method to show the Add Product Dialog
-    private void showAddItemDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.add_new_item_dialog_fragment, null);
-
-        builder.setView(dialogView);
-        AlertDialog dialog = builder.create();
-
-        EditText itemNameEditText = dialogView.findViewById(R.id.etfullnameprod);
-        EditText itemPriceEditText = dialogView.findViewById(R.id.etpriceprod);
-        EditText itemDescriptionEditText = dialogView.findViewById(R.id.etdescriptionprod);
-        Spinner itemCategorySpinner = dialogView.findViewById(R.id.itemCategorySpinner);
-        ImageView itemImageView = dialogView.findViewById(R.id.imageViewupitemadd); // Placeholder for image selection
-        Button saveButton = dialogView.findViewById(R.id.btnsaveitem);
-
-        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, getCategoryNames());
-        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        itemCategorySpinner.setAdapter(categoryAdapter);
-
-        saveButton.setOnClickListener(v -> {
-            String itemName = itemNameEditText.getText().toString().trim();
-            String itemPriceStr = itemPriceEditText.getText().toString().trim();
-            String itemDescription = itemDescriptionEditText.getText().toString().trim();
-            String selectedCategory = itemCategorySpinner.getSelectedItem().toString();
-
-            if (itemName.isEmpty() || itemPriceStr.isEmpty() || itemDescription.isEmpty()) {
-                Toast.makeText(ShowShopDetailsActivity.this, "Please fill all fields", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            try {
-                double itemPrice = Double.parseDouble(itemPriceStr);
-                Uri itemImageUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.drawable.resrurant_image); // Placeholder
-
-                Item newItem = new Item(itemName, itemDescription, itemPrice, R.drawable.pizza, selectedCategory); // Replace R.drawable.pizza with actual image URI
-                itemsAdapter.addItem(newItem);
-                dialog.dismiss();
-            } catch (NumberFormatException e) {
-                Toast.makeText(ShowShopDetailsActivity.this, "Invalid price format", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        dialog.show();
-    }
-
-
-
-    private void showEditItemDialog(Item item) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.add_new_item_dialog_fragment, null);
-        builder.setView(dialogView);
-
-        AlertDialog dialog = builder.create();
-
-        // Initialize dialog views
-        EditText itemNameEditText = dialogView.findViewById(R.id.etfullnameprod);
-        EditText itemPriceEditText = dialogView.findViewById(R.id.etpriceprod);
-        EditText itemDescriptionEditText = dialogView.findViewById(R.id.etdescriptionprod);
-        Spinner itemCategorySpinner = dialogView.findViewById(R.id.itemCategorySpinner);
-        ImageView itemImageView = dialogView.findViewById(R.id.imageViewupitemadd);
-        Button saveButton = dialogView.findViewById(R.id.btnsaveitem);
-
-        // Set current item data to dialog views
-        itemNameEditText.setText(item.getName());
-        itemPriceEditText.setText(String.valueOf(item.getPrice()));
-        itemDescriptionEditText.setText(item.getDescription());
-        itemImageView.setImageResource(item.getImageResId());
-
-        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, getCategoryNames());
-        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        itemCategorySpinner.setAdapter(categoryAdapter);
-        itemCategorySpinner.setSelection(categoryAdapter.getPosition(item.getCategory()));
-
-        // Set click listener for the save button
-        saveButton.setOnClickListener(v -> {
-            String itemName = itemNameEditText.getText().toString().trim();
-            String itemPriceStr = itemPriceEditText.getText().toString().trim();
-            String itemDescription = itemDescriptionEditText.getText().toString().trim();
-            String selectedCategory = itemCategorySpinner.getSelectedItem().toString();
-
-            if (!itemName.isEmpty() && !itemPriceStr.isEmpty() && !itemDescription.isEmpty()) {
-                double itemPrice;
-                try {
-                    itemPrice = Double.parseDouble(itemPriceStr);
-                } catch (NumberFormatException e) {
-                    Toast.makeText(ShowShopDetailsActivity.this, "Invalid price format", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                // Update item details
-                item.setName(itemName);
-                item.setPrice(itemPrice);
-                item.setDescription(itemDescription);
-                item.setCategory(selectedCategory);
-
-                // Notify adapter about item update
-                itemsAdapter.notifyDataSetChanged();
-                dialog.dismiss();
-            } else {
-                Toast.makeText(ShowShopDetailsActivity.this, "Please fill all fields", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        dialog.show();
-    }
 
     // Helper method to get category names for spinner
     private List<String> getCategoryNames() {

@@ -90,8 +90,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="left"
                     android:fontFamily="@font/hacen_beirut_bight"
+                    android:gravity="left"
                     android:text="التقييم : 5.0"
                     android:textColor="@color/black"
                     android:textSize="18sp"
@@ -110,24 +110,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar">
 
-        <LinearLayout
-            android:id="@+id/linear_layout_view_cat"
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_cat"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toTopOf="@id/toolbar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/horizontalScrollView" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_view_cat"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintBottom_toTopOf="@id/toolbar"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/horizontalScrollView" />
-        </LinearLayout>
 
     </HorizontalScrollView>
 
@@ -142,21 +137,13 @@
         app:layout_constraintTop_toBottomOf="@id/horizontalScrollView">
 
 
-        <LinearLayout
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_item"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:paddingBottom="120dp">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:paddingBottom="130dp" />
 
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_view_item"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp" />
-
-
-        </LinearLayout>
 
     </ScrollView>
 

@@ -1,11 +1,36 @@
-<!-- res/layout/order_item_ar.xml -->
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
-    android:layoutDirection="rtl">
+    android:layoutDirection="rtl"
+    tools:context=".NewOrderActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="68dp"
+        android:background="@drawable/tomato_toolbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:titleTextColor="@android:color/black">
+
+        <TextView
+            android:id="@+id/basket"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="@font/hacen_beirut_bight"
+            android:text="تفاصيل الطلب"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:textColor="@color/black"
+            android:textSize="35sp"
+            android:textStyle="bold" />
+    </androidx.appcompat.widget.Toolbar>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -64,7 +89,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="8dp"
+        android:paddingTop="8dp"
+
         android:layoutDirection="rtl">
 
         <!-- باقي التخطيط كما هو -->
@@ -78,6 +104,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:paddingRight="8dp"
+                android:paddingLeft="4dp"
                 android:layout_marginBottom="4dp">
 
                 <ImageView
@@ -116,11 +144,19 @@
                     tools:ignore="TouchTargetSizeCheck" />
 
             </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/underline"
+                />
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="4dp">
+                android:layout_marginBottom="4dp"
+                android:layout_marginTop="4dp"
+                android:paddingRight="8dp"
+                android:paddingLeft="4dp">
 
                 <ImageView
                     android:id="@+id/emailicon"
@@ -159,18 +195,26 @@
                     tools:ignore="TouchTargetSizeCheck" />
 
             </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/underline"
+                />
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="4dp">
+                android:layout_marginBottom="4dp"
+                android:layout_marginTop="4dp"
+                android:paddingRight="8dp"
+                android:paddingLeft="4dp">
 
                 <ImageView
                     android:id="@+id/location_icon"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_gravity="center_vertical"
-                    android:padding="3dp"
+                    android:padding="4dp"
                     android:src="@drawable/ic_location_tomato"
                     app:layout_constraintStart_toEndOf="@+id/placeres"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -209,6 +253,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
                 android:text="الرسالة"
+                android:paddingRight="10dp"
                 android:textColor="@color/black"
                 android:fontFamily="@font/hacen_beirut_bight"
                 android:textSize="20sp"
@@ -218,7 +263,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="الرسالة: مرحباً، الرجاء وضع الصلصة الخضراء في طلبي وأخبر عامل التوصيل أنه يجب أن يأتي إلى الطابق الثاني لأنني لست في المنزل"
+                android:paddingRight="10dp"
+                android:layout_marginBottom="10dp"
+                android:text=" مرحباً، الرجاء وضع الصلصة الخضراء في طلبي وأخبر عامل التوصيل أنه يجب أن يأتي إلى الطابق الثاني لأنني لست في المنزل"
                 android:textSize="14sp"
                 android:fontFamily="@font/hacen_beirut_bight"
                 android:textColor="@android:color/darker_gray" />
@@ -226,6 +273,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:paddingLeft="8dp"
+                android:background="@color/backgrey"
+                android:paddingRight="8dp"
                 android:layout_marginBottom="10dp">
 
                 <TextView
@@ -266,6 +316,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
                 android:layout_marginBottom="4dp">
 
                 <TextView
@@ -304,6 +356,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
                 android:layout_marginBottom="4dp">
 
                 <TextView
@@ -352,7 +406,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="@id/linearlayout_order">
+        android:background="@color/backgrey"
+        android:paddingBottom="20dp"
+        >
 
         <TextView
             android:id="@+id/totalTextView"
@@ -394,53 +450,58 @@
 
 
     <View
-        android:layout_marginTop="20dp"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#A8A8A8" />
 
-
-    <LinearLayout
-        android:id="@+id/linearlayout_order"
+    <TextView
+        android:id="@+id/order_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/hacen_beirut_bight"
+        android:gravity="center_horizontal"
+        android:paddingTop="10dp"
+        android:text=" حالة الطلب : قيد التحضير"
+        android:textStyle="bold"
+        android:textColor="@color/tomato_red"
+        android:textSize="25sp"/>
+
+
+
+    <LinearLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="50dp"
+        android:layout_marginLeft="50dp"
         android:orientation="horizontal"
-        android:layout_marginTop="20dp">
+        android:padding="20dp">
 
-
-        <TextView
-            android:id="@+id/order_Status_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="حالة الطلب : "
-            android:textSize="25sp"
-            android:textColor="@color/black"
-            android:fontFamily="@font/hacen_beirut_bight"
-            android:textStyle="bold"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="4dp" />
-
-        <Spinner
-            android:id="@+id/state_spinner"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_weight="1"
-            android:layout_marginLeft="20dp"
-            android:background="@drawable/black_padding_button"
-            android:prompt="@string/choose_state" />
 
         <Button
-            android:id="@+id/Details_order"
+            android:id="@+id/accept_order"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginLeft="10dp"
+            android:background="@drawable/tomato_button"
+            android:fontFamily="@font/hacen_beirut_bight"
+            android:text="تم التحضير"
             android:textColor="@color/white"
-            android:textSize="20sp"
+            android:layout_marginLeft="10dp"
+            android:textSize="20dp" />
+
+        <Button
+            android:id="@+id/cancel_order"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:layout_marginRight="10dp"
             android:background="@drawable/remove_button"
             android:fontFamily="@font/hacen_beirut_bight"
-            android:text="إلغاء الطلب" />
-
-
+            android:text="إلغاء الطلب"
+            android:textColor="@color/white"
+            android:textSize="20dp" />
     </LinearLayout>
 </LinearLayout>
+

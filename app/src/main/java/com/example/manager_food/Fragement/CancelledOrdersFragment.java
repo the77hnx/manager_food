@@ -1,5 +1,6 @@
 package com.example.manager_food.Fragement;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,13 +13,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.manager_food.Adapter.CancelledOrdersAdapter;
+import com.example.manager_food.Adapter.NewOrdersAdapter;
+import com.example.manager_food.CancelledOrderActivity;
+import com.example.manager_food.NewOrderActivity;
 import com.example.manager_food.R;
 import com.example.manager_food.model.OrderItem;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CancelledOrdersFragment extends Fragment {
+public class CancelledOrdersFragment extends Fragment implements NewOrdersAdapter.OnOrderClickListener  {
 
     private RecyclerView recyclerViewOrders;
     private CancelledOrdersAdapter CancelledorderAdapter;
@@ -42,7 +46,7 @@ public class CancelledOrdersFragment extends Fragment {
 
         List<OrderItem> filteredOrders = filterCancelledOrders(orderList);
 
-        CancelledorderAdapter = new CancelledOrdersAdapter(getContext(), filteredOrders);
+        CancelledorderAdapter = new CancelledOrdersAdapter(getContext(), filteredOrders,this::onOrderClick);
         recyclerViewOrders.setAdapter(CancelledorderAdapter);
 
         return view;
@@ -66,5 +70,15 @@ public class CancelledOrdersFragment extends Fragment {
         args.putParcelableArrayList("orders", new ArrayList<>(orders));
         fragment.setArguments(args);
         return fragment;
+    }
+    @Override
+    public void onOrderClick(OrderItem order) {
+        Intent intent = new Intent(getActivity(), CancelledOrderActivity.class);
+        intent.putExtra("CUSTOMER_NAME", order.getCustomerName());
+        intent.putExtra("ORDER_DATE", order.getOrderDate());
+        intent.putExtra("ORDER_TOTAL", order.getOrderTotal());
+        intent.putExtra("ORDER_MESSAGE", order.getOrderMessage());
+        intent.putExtra("ORDER_STATUS", order.getOrderStatus());
+        startActivity(intent);
     }
 }

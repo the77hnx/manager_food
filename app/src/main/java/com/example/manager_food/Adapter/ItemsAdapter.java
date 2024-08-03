@@ -115,13 +115,13 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemViewHold
 
         public ItemViewHolder(@NonNull View itemView) {
             super(itemView);
-            nameTextView = itemView.findViewById(R.id.itemname);
-            priceTextView = itemView.findViewById(R.id.price);
+            nameTextView = itemView.findViewById(R.id.productNameTextView_frag);
+            priceTextView = itemView.findViewById(R.id.productPriceTextView_frag);
             categoryTextView = itemView.findViewById(R.id.category_text);
             descriptionTextView = itemView.findViewById(R.id.item_description_popup);
             imageView = itemView.findViewById(R.id.product_image);
-            editButton = itemView.findViewById(R.id.edit_order);
-            removeButton = itemView.findViewById(R.id.remove_order);
+            editButton = itemView.findViewById(R.id.editproduct);
+            removeButton = itemView.findViewById(R.id.removeproduct);
         }
     }
 }

@@ -78,35 +78,83 @@
     </androidx.appcompat.widget.Toolbar>
 
     <ScrollView
-        android:id="@+id/scrollView1"
+        android:id="@+id/scrollView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView_sm"
+        android:layout_marginTop="10dp"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView_sm"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="20dp"
         app:layout_constraintTop_toBottomOf="@id/toolbar">
 
-
         <LinearLayout
-            android:id="@+id/linearlayoutallprice"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="@id/bottomNavigationView_sm">
+            android:padding="10dp"
+            app:layout_constraintBottom_toTopOf="@id/bottomNavigationView_sm"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar">
+
+
 
             <TextView
-                android:id="@+id/totalTextView"
-                android:layout_width="match_parent"
+                android:id="@+id/wallettitle"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
+                android:layout_marginRight="10dp"
                 android:fontFamily="@font/hacen_beirut_bight"
-                android:gravity="center_horizontal"
-                android:padding="6dp"
-                android:paddingStart="15dp"
-                android:text="معلومات المطعم"
+                android:paddingTop="5dp"
+                android:paddingRight="10dp"
+                android:text="ملخص الرصيد"
                 android:textColor="@color/black"
-                android:textSize="25sp"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <include layout="@layout/custom_card_wallet" />
+            <TextView
+                android:id="@+id/ordertitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:fontFamily="@font/hacen_beirut_bight"
+                android:paddingTop="5dp"
+                android:paddingRight="10dp"
+                android:text="متجري"
+                android:textColor="@color/black"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <include
+                android:id="@+id/custom_cat"
+                layout="@layout/custom_cat_num"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="1" />
+            <include
+                android:id="@+id/custom_item"
+                layout="@layout/custom_item_num"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="1" />
+        </LinearLayout>
+            <TextView
+                android:id="@+id/order_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:fontFamily="@font/hacen_beirut_bight"
+                android:paddingTop="5dp"
+                android:paddingRight="10dp"
+                android:text="ملخص الطلبات"
+                android:textColor="@color/black"
+                android:textSize="22sp"
                 android:textStyle="bold" />
 
             <LinearLayout
@@ -114,145 +162,54 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
+                <include
+                    layout="@layout/custom_accept_orders_background"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_weight="1" />
 
-            <TextView
-                android:id="@+id/placeres"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_weight="1"
-                android:fontFamily="@font/hacen_beirut_bight"
-                android:gravity="right"
-                android:padding="6dp"
-                android:paddingStart="15dp"
-                android:paddingTop="10dp"
-                android:drawablePadding="10dp"
-                android:drawableRight="@drawable/ic_placeholder"
-                android:text="المكان : لبامة-البياضة"
-                android:textColor="@color/red"
-                android:textSize="25sp"
-                android:textStyle="bold" />
+                <include
+                    layout="@layout/custom_reject_orders_background"
+                    android:layout_width="0dp"
 
-            <TextView
-                android:id="@+id/valres"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:fontFamily="@font/hacen_beirut_bight"
-                android:gravity="center_horizontal"
-                android:padding="6dp"
-                android:paddingStart="15dp"
-                android:paddingTop="10dp"
-                android:text="التقييم 5.0"
-                android:textColor="@color/green"
-                android:textSize="25sp"
-                android:textStyle="bold" />
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
 
             </LinearLayout>
 
 
-            <TextView
-                android:id="@+id/tootalcategoriesinshop"
+            <include
+                layout="@layout/custom_card_info"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:fontFamily="@font/hacen_beirut_bight"
-                android:gravity="center_horizontal"
-                android:padding="6dp"
-                android:paddingStart="15dp"
-                android:paddingTop="10dp"
-                android:text="عدد الأصناف : xxxx"
-                android:textColor="@color/black"
-                android:textSize="25sp"
-                android:textStyle="bold" />
-            <TextView
-                android:id="@+id/tootaliteminshop"
+                android:layout_marginTop="10dp" />
+
+            <include
+                layout="@layout/custom_card_info"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:fontFamily="@font/hacen_beirut_bight"
-                android:gravity="center_horizontal"
-                android:padding="6dp"
-                android:paddingStart="15dp"
-                android:paddingTop="10dp"
-                android:text="عدد المنتجات : xxxx"
-                android:textColor="@color/black"
-                android:textSize="25sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="10dp" />
 
             <TextView
-                android:id="@+id/totalorder"
+                android:id="@+id/rating_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:fontFamily="@font/hacen_beirut_bight"
+                android:paddingTop="5dp"
+                android:paddingRight="10dp"
+                android:text="التقييم"
+                android:textColor="@color/black"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+            <include
+                layout="@layout/custom_rating_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:fontFamily="@font/hacen_beirut_bight"
-                android:gravity="center_horizontal"
-                android:padding="6dp"
-                android:paddingStart="15dp"
-                android:paddingTop="10dp"
-                android:text="عدد الطلبات الكلي : xxxx"
-                android:textColor="@color/black"
-                android:textSize="25sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/ordercompleted"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:fontFamily="@font/hacen_beirut_bight"
-                android:gravity="center_horizontal"
-                android:padding="6dp"
-                android:paddingStart="15dp"
-                android:paddingTop="10dp"
-                android:text="عدد الطلبات المكتملة : xxxx"
-                android:textColor="@color/black"
-                android:textSize="25sp"
-                android:textStyle="bold" />
-            <TextView
-                android:id="@+id/orderpending"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:fontFamily="@font/hacen_beirut_bight"
-                android:gravity="center_horizontal"
-                android:padding="6dp"
-                android:paddingStart="15dp"
-                android:paddingTop="10dp"
-                android:text="عدد الطلبات قيد التحضير : xxxx"
-                android:textColor="@color/black"
-                android:textSize="25sp"
-                android:textStyle="bold" />
-            <TextView
-                android:id="@+id/ordercancelled"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:fontFamily="@font/hacen_beirut_bight"
-                android:gravity="center_horizontal"
-                android:padding="6dp"
-                android:paddingStart="15dp"
-                android:paddingTop="10dp"
-                android:text="عدد الطلبات الملغية : xxxx"
-                android:textColor="@color/black"
-                android:textSize="25sp"
-                android:textStyle="bold" />
-
-            <Button
-                android:id="@+id/topage"
-                android:layout_width="150dp"
-                android:layout_height="match_parent"
-                android:layout_margin="16dp"
-                android:background="@drawable/tomato_button"
-                android:fontFamily="@font/hacen_beirut_bight"
-                android:padding="10dp"
-                android:layout_gravity="center"
-                android:text="متابعة"
-                android:textColor="@color/black"
-                android:textSize="20sp" />
-
+                android:layout_marginTop="10dp" />
         </LinearLayout>
-
     </ScrollView>
 
 

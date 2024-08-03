@@ -18,10 +18,12 @@ public class CancelledOrdersAdapter extends RecyclerView.Adapter<CancelledOrders
 
     private final Context context;
     private final List<OrderItem> orderList;
+    private final OnOrderClickListener onOrderClickListener;
 
-    public CancelledOrdersAdapter(Context context, List<OrderItem> orderList) {
+    public CancelledOrdersAdapter(Context context, List<OrderItem> orderList, OnOrderClickListener onOrderClickListener) {
         this.context = context;
         this.orderList = orderList;
+        this.onOrderClickListener = onOrderClickListener;
     }
 
     @NonNull
@@ -36,11 +38,16 @@ public class CancelledOrdersAdapter extends RecyclerView.Adapter<CancelledOrders
     public void onBindViewHolder(@NonNull CancelledOrderViewHolder holder, int position) {
         OrderItem order = orderList.get(position);
         holder.bind(order);
+        holder.itemView.setOnClickListener(v -> onOrderClickListener.onOrderClick(order));
     }
 
     @Override
     public int getItemCount() {
         return orderList.size();
+    }
+
+    public interface OnOrderClickListener {
+        void onOrderClick(OrderItem order);
     }
 
     static class CancelledOrderViewHolder extends RecyclerView.ViewHolder {

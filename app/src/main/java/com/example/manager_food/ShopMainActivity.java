@@ -31,7 +31,6 @@ public class ShopMainActivity extends AppCompatActivity {
         // Initialize UI components
         basket = findViewById(R.id.basketmain);
         offerSwitch = findViewById(R.id.offer_switch_main);
-        addProductButton = findViewById(R.id.topage);
 
         // Load the saved offer switch state
         SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
@@ -47,12 +46,7 @@ public class ShopMainActivity extends AppCompatActivity {
             saveOfferSwitchState(isChecked); // Save state when it changes
         });
 
-        // Set up listener for the Button
-        addProductButton.setOnClickListener(v -> {
-            Intent intent = new Intent(ShopMainActivity.this, ShowShopDetailsActivity.class);
-            intent.putExtra("OFFER_STATUS", offerSwitch.isChecked());
-            startActivity(intent);
-        });
+
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView_sm);
         bottomNavigationView.setSelectedItemId(R.id.navigation_home); // Change this based on the activity

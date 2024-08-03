@@ -1,12 +1,15 @@
 package com.example.manager_food.model;
 
+import android.net.Uri;
+
 import java.io.Serializable;
 
 public class Item implements Serializable {
+
     private String name;
     private String description;
     private double price;
-    private int imageResId;
+    private int imageResId; // Use int for resource IDs
     private String category;
 
     // Constructor

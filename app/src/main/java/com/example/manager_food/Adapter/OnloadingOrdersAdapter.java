@@ -18,10 +18,12 @@ public class OnloadingOrdersAdapter extends RecyclerView.Adapter<OnloadingOrders
 
     private final Context context;
     private final List<OrderItem> orderList;
+    private final OnOrderClickListener onOrderClickListener;
 
-    public OnloadingOrdersAdapter(Context context, List<OrderItem> orderList) {
+    public OnloadingOrdersAdapter(Context context, List<OrderItem> orderList, OnOrderClickListener onOrderClickListener) {
         this.context = context;
         this.orderList = orderList;
+        this.onOrderClickListener = onOrderClickListener;
     }
 
     @NonNull
@@ -36,11 +38,16 @@ public class OnloadingOrdersAdapter extends RecyclerView.Adapter<OnloadingOrders
     public void onBindViewHolder(@NonNull OnloadingOrderViewHolder holder, int position) {
         OrderItem order = orderList.get(position);
         holder.bind(order);
+        holder.itemView.setOnClickListener(v -> onOrderClickListener.onOrderClick(order));
     }
 
     @Override
     public int getItemCount() {
         return orderList.size();
+    }
+
+    public interface OnOrderClickListener {
+        void onOrderClick(OrderItem order);
     }
 
     static class OnloadingOrderViewHolder extends RecyclerView.ViewHolder {
@@ -55,14 +62,14 @@ public class OnloadingOrdersAdapter extends RecyclerView.Adapter<OnloadingOrders
 
         public OnloadingOrderViewHolder(View itemView) {
             super(itemView);
-            customerName = itemView.findViewById(R.id.customer_name_onloading);
-            orderDate = itemView.findViewById(R.id.order_date_onloading);
-            orderId = itemView.findViewById(R.id.order_id_onloading);
-            orderTotal = itemView.findViewById(R.id.order_total_onloading);
-            itemName = itemView.findViewById(R.id.item_name_onloading);
-            itemQuantity = itemView.findViewById(R.id.item_quantity_onloading);
-            itemPrice = itemView.findViewById(R.id.item_price_onloading);
-            orderMessage = itemView.findViewById(R.id.order_message_onloading);
+            customerName = itemView.findViewById(R.id.customer_name_cancelled);
+            orderDate = itemView.findViewById(R.id.order_date_cancelled);
+            orderId = itemView.findViewById(R.id.order_id_cancelled);
+            orderTotal = itemView.findViewById(R.id.order_total_cancelled);
+            itemName = itemView.findViewById(R.id.item_name_cancelled);
+            itemQuantity = itemView.findViewById(R.id.item_quantity_cancelled);
+            itemPrice = itemView.findViewById(R.id.item_price_cancelled);
+            orderMessage = itemView.findViewById(R.id.order_message_cancelled);
         }
 
         public void bind(OrderItem order) {

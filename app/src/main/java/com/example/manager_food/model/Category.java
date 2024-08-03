@@ -1,7 +1,7 @@
 package com.example.manager_food.model;
 
 public class Category {
-    private String name;
+    private static String name;
     private int imageResId;
 
     public Category(String name, int imageResId) {
@@ -9,7 +9,7 @@ public class Category {
         this.imageResId = imageResId;
     }
 
-    public String getName() {
+    public static String getName() {
         return name;
     }
 

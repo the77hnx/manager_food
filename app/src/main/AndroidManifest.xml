@@ -12,8 +12,6 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
-
-
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -25,8 +23,17 @@
         android:theme="@style/Theme.AppTheme"
         tools:targetApi="31">
         <activity
-            android:name=".ShowShopDetailsActivity"
+            android:name=".OnloadingOrderActivity"
             android:exported="false" />
+        <activity
+            android:name=".AddNewCategoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AddNewItemActivity"
+            android:exported="false" />
+         <activity
+         android:name=".ShowShopDetailsActivity"
+         android:exported="false" />
         <activity
             android:name=".AddNewAreaActivity"
             android:exported="false" />
@@ -43,7 +50,7 @@
             android:name=".TestActivity"
             android:exported="false" />
         <activity
-            android:name=".OTPActivity"
+            android:name=".NewOrderActivity"
             android:exported="false" />
         <activity
             android:name=".OngoingOrderActivity"
@@ -64,16 +71,16 @@
             android:name=".CompletedOrderActivity"
             android:exported="false" />
         <activity
-            android:name=".NewOrderActivity"
+            android:name=".OurOrdersActivity"
             android:exported="false" />
-        <activity
-            android:name=".SplashScreenActivity"
-            android:exported="false" />
+<!--        <activity-->
+<!--            android:name=".SplashScreenActivity"-->
+<!--            android:exported="false" />-->
         <activity
             android:name=".EditProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".OurOrdersActivity"
+            android:name=".SplashScreenActivity"
             android:exported="true"
             android:theme="@style/AppTheme"> <!-- Set android:exported="true" -->
             <intent-filter>

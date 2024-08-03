@@ -1,26 +1,21 @@
-<!-- res/layout/order_item_ar.xml -->
-
 
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="250dp"
-    android:layout_margin="8dp"
     android:layoutDirection="rtl"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
+    android:layout_margin="10dp"
+    android:layout_height="220dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/profileordercolor"
             android:orientation="horizontal"
+            android:background="@color/profileordercolor"
             android:padding="8dp">
 
             <ImageView
@@ -36,56 +31,58 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/customer_name_ongoing"
+                    android:id="@+id/customer_name_cancelled"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/hacen_beirut_bight"
                     android:text="أحمد علي"
                     android:textColor="@color/black"
+                    android:fontFamily="@font/hacen_beirut_bight"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/order_date_ongoing"
+                    android:layout_marginTop="5dp"
+                    android:id="@+id/order_date_cancelled"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:fontFamily="@font/hacen_beirut_bight"
                     android:text="اليوم الساعة 12:33 ص"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    android:fontFamily="@font/hacen_beirut_bight"
+                    android:textColor="@android:color/black" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="start"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:gravity="start">
 
                 <TextView
-                    android:id="@+id/order_id_ongoing"
+                    android:id="@+id/order_id_cancelled"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/hacen_beirut_bight"
                     android:text="رقم الطلب: 348"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    android:fontFamily="@font/hacen_beirut_bight"
+                    android:textColor="@android:color/black" />
 
                 <TextView
-                    android:id="@+id/order_total_ongoing"
+                    android:id="@+id/order_total_cancelled"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:fontFamily="@font/hacen_beirut_bight"
                     android:text="الإجمالي: 42.00 دج"
-                    android:textColor="@color/black"
                     android:textSize="16sp"
+                    android:textColor="@color/black"
+                    android:fontFamily="@font/hacen_beirut_bight"
+                    android:layout_marginTop="4dp"
                     android:textStyle="bold"/>
             </LinearLayout>
         </LinearLayout>
 
         <!-- res/layout/order_item_ar.xml -->
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layoutDirection="rtl"
@@ -107,7 +104,7 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/item_name_ongoing"
+                        android:id="@+id/item_name_cancelled"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="2"
@@ -116,7 +113,7 @@
                         android:textSize="14sp" />
 
                     <TextView
-                        android:id="@+id/item_quantity_ongoing"
+                        android:id="@+id/item_quantity_cancelled"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -127,7 +124,7 @@
                         android:textSize="14sp" />
 
                     <TextView
-                        android:id="@+id/item_price_ongoing"
+                        android:id="@+id/item_price_cancelled"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -138,15 +135,11 @@
                         android:textSize="14sp" />
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    android:orientation="horizontal"/>
+
 
 
                 <TextView
-                    android:id="@+id/order_message_ongoing"
+                    android:id="@+id/order_message_cancelled"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
@@ -158,46 +151,28 @@
 
         </LinearLayout>
 
-
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:orientation="horizontal"
-            android:padding="10dp">
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:orientation="horizontal">
 
 
             <TextView
-                android:id="@+id/order_Status_tv"
+                android:id="@+id/order_Status_tv_cancelled"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
                 android:fontFamily="@font/hacen_beirut_bight"
-                android:text="حالة الطلب : "
-                android:textColor="@color/black"
-                android:textSize="25sp"
-                android:textStyle="bold" />
-
-            <Spinner
-                android:id="@+id/del_status_spinner"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_marginLeft="20dp"
-                android:layout_weight="1"
-                android:background="@drawable/black_padding_button"
-                android:prompt="@string/choose_state" />
-
-            <Button
-                android:id="@+id/Details_order"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@drawable/tomato_padding_button"
-                android:fontFamily="@font/hacen_beirut_bight"
-                android:text="تفاصيل الطلب"
+                android:text="حالة الطلب :قيد التحضير"
                 android:textColor="@color/tomato_red"
-                android:textSize="16sp" />
+                android:textSize="20sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
 
-        </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

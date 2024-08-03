@@ -13,15 +13,16 @@ import com.example.manager_food.R;
 import com.example.manager_food.model.OrderItem;
 
 import java.util.List;
-
 public class OngoingOrdersAdapter extends RecyclerView.Adapter<OngoingOrdersAdapter.OngoingOrderViewHolder> {
 
     private final Context context;
     private final List<OrderItem> orderList;
+    private final OnOrderClickListener onOrderClickListener;
 
-    public OngoingOrdersAdapter(Context context, List<OrderItem> orderList) {
+    public OngoingOrdersAdapter(Context context, List<OrderItem> orderList, OnOrderClickListener onOrderClickListener) {
         this.context = context;
         this.orderList = orderList;
+        this.onOrderClickListener = onOrderClickListener;
     }
 
     @NonNull
@@ -36,11 +37,16 @@ public class OngoingOrdersAdapter extends RecyclerView.Adapter<OngoingOrdersAdap
     public void onBindViewHolder(@NonNull OngoingOrderViewHolder holder, int position) {
         OrderItem order = orderList.get(position);
         holder.bind(order);
+        holder.itemView.setOnClickListener(v -> onOrderClickListener.onOrderClick(order));
     }
 
     @Override
     public int getItemCount() {
         return orderList.size();
+    }
+
+    public interface OnOrderClickListener {
+        void onOrderClick(OrderItem order);
     }
 
     static class OngoingOrderViewHolder extends RecyclerView.ViewHolder {
@@ -55,14 +61,14 @@ public class OngoingOrdersAdapter extends RecyclerView.Adapter<OngoingOrdersAdap
 
         public OngoingOrderViewHolder(View itemView) {
             super(itemView);
-            customerName = itemView.findViewById(R.id.customer_name_ongoing);
-            orderDate = itemView.findViewById(R.id.order_date_ongoing);
-            orderId = itemView.findViewById(R.id.order_id_ongoing);
-            orderTotal = itemView.findViewById(R.id.order_total_ongoing);
-            itemName = itemView.findViewById(R.id.item_name_ongoing);
-            itemQuantity = itemView.findViewById(R.id.item_quantity_ongoing);
-            itemPrice = itemView.findViewById(R.id.item_price_ongoing);
-            orderMessage = itemView.findViewById(R.id.order_message_ongoing);
+            customerName = itemView.findViewById(R.id.customer_name_cancelled);
+            orderDate = itemView.findViewById(R.id.order_date_cancelled);
+            orderId = itemView.findViewById(R.id.order_id_cancelled);
+            orderTotal = itemView.findViewById(R.id.order_total_cancelled);
+            itemName = itemView.findViewById(R.id.item_name_cancelled);
+            itemQuantity = itemView.findViewById(R.id.item_quantity_cancelled);
+            itemPrice = itemView.findViewById(R.id.item_price_cancelled);
+            orderMessage = itemView.findViewById(R.id.order_message_cancelled);
         }
 
         public void bind(OrderItem order) {
