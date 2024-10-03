@@ -5,7 +5,9 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,15 +18,27 @@ import androidx.core.view.WindowInsetsCompat;
 public class ShopInformationActivity extends AppCompatActivity {
 
     private ImageView facebook, gmail, whatsapp;
+    private TextView Name_MagasinTv, Nmber_EnrigestrementTv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shopinformation);
 
+        Name_MagasinTv = findViewById(R.id.namemagpend);
+        Nmber_EnrigestrementTv = findViewById(R.id.numberEnrigestrementpend);
         facebook = findViewById(R.id.facebook);
         gmail = findViewById(R.id.gmail);
         whatsapp = findViewById(R.id.whatsapp);
+
+        Intent intent = getIntent();
+
+        String Name_Magasin = intent.getStringExtra("nom_magasin");
+        String Nmber_Enrigestrement = intent.getStringExtra("n_enregistrement");
+
+        Name_MagasinTv.setText(Name_Magasin);
+        Nmber_EnrigestrementTv.setText(Nmber_Enrigestrement);
+
 
         // Apply window insets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -32,6 +46,7 @@ public class ShopInformationActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
 
         // Set click listeners for social media icons
         facebook.setOnClickListener(v -> openFacebookMessenger());

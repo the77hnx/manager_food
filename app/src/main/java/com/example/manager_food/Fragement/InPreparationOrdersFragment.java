@@ -12,64 +12,64 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.manager_food.Adapter.CancelledOrdersAdapter;
-import com.example.manager_food.CancelledOrderActivity;
+import com.example.manager_food.Adapter.InPreparationOrdersAdapter;
+import com.example.manager_food.DetailsOrderActivity;
 import com.example.manager_food.R;
 import com.example.manager_food.model.OrderItem;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CancelledOrdersFragment extends Fragment implements CancelledOrdersAdapter.OnOrderClickListener {
+public class InPreparationOrdersFragment extends Fragment implements InPreparationOrdersAdapter.OnOrderClickListener {
 
     private RecyclerView recyclerViewOrders;
-    private CancelledOrdersAdapter cancelledOrderAdapter;
+    private InPreparationOrdersAdapter inPreparationOrderAdapter;
     private List<OrderItem> orderList;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_cancelled_orders, container, false);
+        View view = inflater.inflate(R.layout.fragment_in_preparation_orders, container, false);
 
         initializeViews(view);
         setupRecyclerView();
 
         if (getArguments() != null) {
             orderList = getArguments().getParcelableArrayList("orders");
-            orderList = filterCancelledOrders(orderList);
+            orderList = filterInPreparationOrders(orderList);
         } else {
             orderList = new ArrayList<>();
         }
 
-        cancelledOrderAdapter = new CancelledOrdersAdapter(getContext(), orderList, this::onOrderClick);
-        recyclerViewOrders.setAdapter(cancelledOrderAdapter);
+        inPreparationOrderAdapter = new InPreparationOrdersAdapter(getContext(), orderList, this::onOrderClick);
+        recyclerViewOrders.setAdapter(inPreparationOrderAdapter);
 
         return view;
     }
 
     private void initializeViews(View view) {
-        recyclerViewOrders = view.findViewById(R.id.recyclerViewCancelled);
+        recyclerViewOrders = view.findViewById(R.id.recyclerViewInPreparation);
     }
 
     private void setupRecyclerView() {
         recyclerViewOrders.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 
-    private List<OrderItem> filterCancelledOrders(List<OrderItem> orders) {
-        List<OrderItem> cancelledOrders = new ArrayList<>();
+    private List<OrderItem> filterInPreparationOrders(List<OrderItem> orders) {
+        List<OrderItem> inPreparationOrders = new ArrayList<>();
         if (orders != null) {
             for (OrderItem order : orders) {
-                if ("ملغية".equals(order.getOrderStatus())) {
-                    cancelledOrders.add(order);
+                if ("قيد التحضير".equals(order.getOrderStatus())) { // Arabic for "In Preparation"
+                    inPreparationOrders.add(order);
                 }
             }
         }
-        return cancelledOrders;
+        return inPreparationOrders;
     }
 
-    public static CancelledOrdersFragment newInstance(List<OrderItem> orders) {
-        CancelledOrdersFragment fragment = new CancelledOrdersFragment();
+    public static InPreparationOrdersFragment newInstance(List<OrderItem> orders) {
+        InPreparationOrdersFragment fragment = new InPreparationOrdersFragment();
         Bundle args = new Bundle();
         args.putParcelableArrayList("orders", new ArrayList<>(orders));
         fragment.setArguments(args);
@@ -78,7 +78,7 @@ public class CancelledOrdersFragment extends Fragment implements CancelledOrders
 
     @Override
     public void onOrderClick(OrderItem order) {
-        Intent intent = new Intent(getActivity(), CancelledOrderActivity.class);
+        Intent intent = new Intent(getActivity(), DetailsOrderActivity.class);
         intent.putExtra("CUSTOMER_NAME", order.getCustomerName());
         intent.putExtra("ORDER_DATE", order.getOrderDate());
         intent.putExtra("ORDER_TOTAL", order.getOrderTotal());

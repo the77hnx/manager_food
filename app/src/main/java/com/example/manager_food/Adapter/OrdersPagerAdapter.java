@@ -19,40 +19,33 @@ public class OrdersPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private static final int VIEW_TYPE_NEW = 0;
     private static final int VIEW_TYPE_IN_PREPARATION = 1;
     private static final int VIEW_TYPE_IN_DELIVERY = 2;
-    private static final int VIEW_TYPE_ON_DELIVERY = 3; // Added missing semicolon
+    private static final int VIEW_TYPE_ON_DELIVERY = 3;
     private static final int VIEW_TYPE_CANCELLED = 4;
     private static final int VIEW_TYPE_COMPLETED = 5;
 
     private final Context context;
     private final List<OrderItem> newOrders;
     private final List<OrderItem> ongoingOrders;
-    private final List<OrderItem> inDeliveryOrders;  // Consider renaming this for clarity
-    private final List<OrderItem> ondeliveryOrders;
+    private final List<OrderItem> inDeliveryOrders;
+    private final List<OrderItem> onDeliveryOrders;
     private final List<OrderItem> cancelledOrders;
     private final List<OrderItem> completedOrders;
-
-
-    public interface OnOrderClickListener {
-        void onOrderClick(OrderItem order);
-    }
-
 
     public OrdersPagerAdapter(Context context,
                               List<OrderItem> newOrders,
                               List<OrderItem> ongoingOrders,
                               List<OrderItem> inDeliveryOrders,
-                              List<OrderItem> ondeliveryOrders,
+                              List<OrderItem> onDeliveryOrders,
                               List<OrderItem> cancelledOrders,
                               List<OrderItem> completedOrders) {
         this.context = context;
         this.newOrders = newOrders;
         this.ongoingOrders = ongoingOrders;
         this.inDeliveryOrders = inDeliveryOrders;
-        this.ondeliveryOrders = ondeliveryOrders;
+        this.onDeliveryOrders = onDeliveryOrders;
         this.cancelledOrders = cancelledOrders;
-        this.completedOrders = completedOrders;  // Added line
+        this.completedOrders = completedOrders;
     }
-
 
     @Override
     public int getItemViewType(int position) {
@@ -62,15 +55,14 @@ public class OrdersPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             return VIEW_TYPE_IN_PREPARATION;
         } else if (position < newOrders.size() + ongoingOrders.size() + inDeliveryOrders.size()) {
             return VIEW_TYPE_IN_DELIVERY;
-        } else if (position < newOrders.size() + ongoingOrders.size() + inDeliveryOrders.size() + ondeliveryOrders.size()) {
+        } else if (position < newOrders.size() + ongoingOrders.size() + inDeliveryOrders.size() + onDeliveryOrders.size()) {
             return VIEW_TYPE_ON_DELIVERY;
-        } else if (position < newOrders.size() + ongoingOrders.size() + inDeliveryOrders.size() + ondeliveryOrders.size() + cancelledOrders.size()) {
+        } else if (position < newOrders.size() + ongoingOrders.size() + inDeliveryOrders.size() + onDeliveryOrders.size() + cancelledOrders.size()) {
             return VIEW_TYPE_CANCELLED;
         } else {
             return VIEW_TYPE_COMPLETED;
         }
     }
-
 
     @NonNull
     @Override
@@ -79,257 +71,120 @@ public class OrdersPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         switch (viewType) {
             case VIEW_TYPE_NEW:
-                return new NewOrderViewHolder(inflater.inflate(R.layout.frag_new_order, parent, false));
+                return new NewOrderViewHolder(inflater.inflate(R.layout.frag_cancelled_order, parent, false));
             case VIEW_TYPE_IN_PREPARATION:
-                return new OngoingOrderViewHolder(inflater.inflate(R.layout.frag_ongoing_order, parent, false));
+                return new OngoingOrderViewHolder(inflater.inflate(R.layout.frag_cancelled_order, parent, false));
             case VIEW_TYPE_IN_DELIVERY:
-                return new OnloadingOrderViewHolder(inflater.inflate(R.layout.frag_onloading_orders, parent, false));
+                return new InDeliveryOrderViewHolder(inflater.inflate(R.layout.frag_cancelled_order, parent, false));
             case VIEW_TYPE_ON_DELIVERY:
-                return new OndeliveryOrderViewHolder(inflater.inflate(R.layout.frag_ondelivery_orders, parent, false));
+                return new OnDeliveryOrderViewHolder(inflater.inflate(R.layout.frag_cancelled_order, parent, false));
             case VIEW_TYPE_CANCELLED:
                 return new CancelledOrderViewHolder(inflater.inflate(R.layout.frag_cancelled_order, parent, false));
+            case VIEW_TYPE_COMPLETED:
+                return new CompletedOrderViewHolder(inflater.inflate(R.layout.frag_cancelled_order, parent, false));
             default:
-                return new CompletedOrderViewHolder(inflater.inflate(R.layout.frag_completed_order, parent, false));  // Added line
+                throw new IllegalStateException("Unexpected view type: " + viewType);
         }
     }
-
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        if (position < newOrders.size()) {
-            ((NewOrderViewHolder) holder).bind(newOrders.get(position));
-        } else if (position < newOrders.size() + ongoingOrders.size()) {
-            ((OngoingOrderViewHolder) holder).bind(ongoingOrders.get(position - newOrders.size()));
-        } else if (position < newOrders.size() + ongoingOrders.size() + inDeliveryOrders.size()) {
-            ((OnloadingOrderViewHolder) holder).bind(inDeliveryOrders.get(position - newOrders.size() - ongoingOrders.size()));
-        } else if (position < newOrders.size() + ongoingOrders.size() + inDeliveryOrders.size() + ondeliveryOrders.size()) {
-            ((OndeliveryOrderViewHolder) holder).bind(ondeliveryOrders.get(position - newOrders.size() - ongoingOrders.size() - inDeliveryOrders.size()));
-        } else if (position < newOrders.size() + ongoingOrders.size() + inDeliveryOrders.size() + ondeliveryOrders.size() + cancelledOrders.size()) {
-            ((CancelledOrderViewHolder) holder).bind(cancelledOrders.get(position - newOrders.size() - ongoingOrders.size() - inDeliveryOrders.size() - ondeliveryOrders.size()));
-        } else {
-            ((CompletedOrderViewHolder) holder).bind(completedOrders.get(position - newOrders.size() - ongoingOrders.size() - inDeliveryOrders.size() - ondeliveryOrders.size() - cancelledOrders.size())); // Updated line
+        if (holder instanceof NewOrderViewHolder) {
+            // Bind new order
+        } else if (holder instanceof OngoingOrderViewHolder) {
+            // Bind ongoing order
+        } else if (holder instanceof InDeliveryOrderViewHolder) {
+            // Bind in delivery order
+        } else if (holder instanceof OnDeliveryOrderViewHolder) {
+            // Bind on delivery order
+        } else if (holder instanceof CancelledOrderViewHolder) {
+            // Bind cancelled order
+        } else if (holder instanceof CompletedOrderViewHolder) {
+            // Bind completed order
         }
     }
-
 
     @Override
     public int getItemCount() {
-        return newOrders.size() +
-                ongoingOrders.size() +
-                inDeliveryOrders.size() +
-                ondeliveryOrders.size() +
-                cancelledOrders.size() +
-                completedOrders.size();  // Added line
+        return newOrders.size() + ongoingOrders.size() + inDeliveryOrders.size() + onDeliveryOrders.size() + cancelledOrders.size() + completedOrders.size();
     }
 
-
-    // View Holder for New Orders
+    // ViewHolder classes for different order types
     static class NewOrderViewHolder extends RecyclerView.ViewHolder {
-        private final TextView customerName;
-        private final TextView orderDate;
-        private final TextView orderId;
-        private final TextView orderTotal;
-        private final TextView itemName;
-        private final TextView itemQuantity;
-        private final TextView itemPrice;
-        private final TextView orderMessage;
+        TextView id_order, customerName, orderDate, orderTotal,status_order;
 
-        public NewOrderViewHolder(View itemView) {
+        public NewOrderViewHolder(@NonNull View itemView) {
             super(itemView);
-            customerName = itemView.findViewById(R.id.customer_name_cancelled);  // Ensure unique ID
-            orderDate = itemView.findViewById(R.id.order_date_cancelled);
-            orderId = itemView.findViewById(R.id.order_id_cancelled);
-            orderTotal = itemView.findViewById(R.id.order_total_cancelled);
-            itemName = itemView.findViewById(R.id.item_name_cancelled);
-            itemQuantity = itemView.findViewById(R.id.item_quantity_cancelled);
-            itemPrice = itemView.findViewById(R.id.item_price_cancelled);
-            orderMessage = itemView.findViewById(R.id.order_message_cancelled);
-        }
-
-        public void bind(OrderItem order) {
-            customerName.setText(order.getCustomerName());
-            orderDate.setText(order.getOrderDate());
-            orderId.setText(order.getOrderId());
-            orderTotal.setText(order.getOrderTotal());
-            itemName.setText(order.getItemName());
-            itemQuantity.setText(order.getItemQuantity());
-            itemPrice.setText(order.getItemPrice());
-            orderMessage.setText(order.getOrderMessage());
+            id_order = itemView.findViewById(R.id.order_id_cancelled_order);
+            customerName = itemView.findViewById(R.id.customer_name_cancelled_order);
+            orderDate = itemView.findViewById(R.id.order_date_cancelled_order);
+            orderTotal = itemView.findViewById(R.id.order_total_cancelled_order);
+            status_order = itemView.findViewById(R.id.order_date_cancelled_order);
         }
     }
 
-    // View Holder for Ongoing Orders
     static class OngoingOrderViewHolder extends RecyclerView.ViewHolder {
-        private final TextView customerName;
-        private final TextView orderDate;
-        private final TextView orderId;
-        private final TextView orderTotal;
-        private final TextView itemName;
-        private final TextView itemQuantity;
-        private final TextView itemPrice;
-        private final TextView orderMessage;
+        TextView id_order, customerName, orderDate, orderTotal,status_order;
 
-        public OngoingOrderViewHolder(View itemView) {
+        public OngoingOrderViewHolder(@NonNull View itemView) {
             super(itemView);
-            customerName = itemView.findViewById(R.id.customer_name_cancelled);  // Ensure unique ID
-            orderDate = itemView.findViewById(R.id.order_date_cancelled);
-            orderId = itemView.findViewById(R.id.order_id_cancelled);
-            orderTotal = itemView.findViewById(R.id.order_total_cancelled);
-            itemName = itemView.findViewById(R.id.item_name_cancelled);
-            itemQuantity = itemView.findViewById(R.id.item_quantity_cancelled);
-            itemPrice = itemView.findViewById(R.id.item_price_cancelled);
-            orderMessage = itemView.findViewById(R.id.order_message_cancelled);
+            id_order = itemView.findViewById(R.id.order_id_cancelled_order);
+            customerName = itemView.findViewById(R.id.customer_name_cancelled_order);
+            orderDate = itemView.findViewById(R.id.order_date_cancelled_order);
+            orderTotal = itemView.findViewById(R.id.order_total_cancelled_order);
+            status_order = itemView.findViewById(R.id.order_date_cancelled_order);
         }
+    }
 
-        public void bind(OrderItem order) {
-            customerName.setText(order.getCustomerName());
-            orderDate.setText(order.getOrderDate());
-            orderId.setText(order.getOrderId());
-            orderTotal.setText(order.getOrderTotal());
-            itemName.setText(order.getItemName());
-            itemQuantity.setText(order.getItemQuantity());
-            itemPrice.setText(order.getItemPrice());
-            orderMessage.setText(order.getOrderMessage());
+    static class InDeliveryOrderViewHolder extends RecyclerView.ViewHolder {
+        TextView id_order, customerName, orderDate, orderTotal,status_order;
+
+        public InDeliveryOrderViewHolder(@NonNull View itemView) {
+            super(itemView);
+            id_order = itemView.findViewById(R.id.order_id_cancelled_order);
+            customerName = itemView.findViewById(R.id.customer_name_cancelled_order);
+            orderDate = itemView.findViewById(R.id.order_date_cancelled_order);
+            orderTotal = itemView.findViewById(R.id.order_total_cancelled_order);
+            status_order = itemView.findViewById(R.id.order_date_cancelled_order);
+        }
+    }
+
+    static class OnDeliveryOrderViewHolder extends RecyclerView.ViewHolder {
+        TextView id_order, customerName, orderDate, orderTotal,status_order;
+
+        public OnDeliveryOrderViewHolder(@NonNull View itemView) {
+            super(itemView);
+            id_order = itemView.findViewById(R.id.order_id_cancelled_order);
+            customerName = itemView.findViewById(R.id.customer_name_cancelled_order);
+            orderDate = itemView.findViewById(R.id.order_date_cancelled_order);
+            orderTotal = itemView.findViewById(R.id.order_total_cancelled_order);
+            status_order = itemView.findViewById(R.id.order_date_cancelled_order);
+        }
+    }
+
+    static class CancelledOrderViewHolder extends RecyclerView.ViewHolder {
+        TextView id_order, customerName, orderDate, orderTotal,status_order;
+
+        public CancelledOrderViewHolder(@NonNull View itemView) {
+            super(itemView);
+            id_order = itemView.findViewById(R.id.order_id_cancelled_order);
+            customerName = itemView.findViewById(R.id.customer_name_cancelled_order);
+            orderDate = itemView.findViewById(R.id.order_date_cancelled_order);
+            orderTotal = itemView.findViewById(R.id.order_total_cancelled_order);
+            status_order = itemView.findViewById(R.id.order_date_cancelled_order);
         }
     }
 
     static class CompletedOrderViewHolder extends RecyclerView.ViewHolder {
-        private final TextView customerName;
-        private final TextView orderDate;
-        private final TextView orderId;
-        private final TextView orderTotal;
-        private final TextView itemName;
-        private final TextView itemQuantity;
-        private final TextView itemPrice;
-        private final TextView orderMessage;
+        TextView id_order, customerName, orderDate, orderTotal,status_order;
 
-        public CompletedOrderViewHolder(View itemView) {
+        public CompletedOrderViewHolder(@NonNull View itemView) {
             super(itemView);
-            customerName = itemView.findViewById(R.id.customer_name_cancelled);  // Ensure unique ID
-            orderDate = itemView.findViewById(R.id.order_date_cancelled);
-            orderId = itemView.findViewById(R.id.order_id_cancelled);
-            orderTotal = itemView.findViewById(R.id.order_total_cancelled);
-            itemName = itemView.findViewById(R.id.item_name_cancelled);
-            itemQuantity = itemView.findViewById(R.id.item_quantity_cancelled);
-            itemPrice = itemView.findViewById(R.id.item_price_cancelled);
-            orderMessage = itemView.findViewById(R.id.order_message_cancelled);
-        }
-
-        public void bind(OrderItem order) {
-            customerName.setText(order.getCustomerName());
-            orderDate.setText(order.getOrderDate());
-            orderId.setText(order.getOrderId());
-            orderTotal.setText(order.getOrderTotal());
-            itemName.setText(order.getItemName());
-            itemQuantity.setText(order.getItemQuantity());
-            itemPrice.setText(order.getItemPrice());
-            orderMessage.setText(order.getOrderMessage());
-        }
-    }
-
-
-    // View Holder for In Delivery Orders
-    static class OnloadingOrderViewHolder extends RecyclerView.ViewHolder {
-        private final TextView customerName;
-        private final TextView orderDate;
-        private final TextView orderId;
-        private final TextView orderTotal;
-        private final TextView itemName;
-        private final TextView itemQuantity;
-        private final TextView itemPrice;
-        private final TextView orderMessage;
-
-        public OnloadingOrderViewHolder(View itemView) {
-            super(itemView);
-            customerName = itemView.findViewById(R.id.customer_name_cancelled);  // Ensure unique ID
-            orderDate = itemView.findViewById(R.id.order_date_cancelled);
-            orderId = itemView.findViewById(R.id.order_id_cancelled);
-            orderTotal = itemView.findViewById(R.id.order_total_cancelled);
-            itemName = itemView.findViewById(R.id.item_name_cancelled);
-            itemQuantity = itemView.findViewById(R.id.item_quantity_cancelled);
-            itemPrice = itemView.findViewById(R.id.item_price_cancelled);
-            orderMessage = itemView.findViewById(R.id.order_message_cancelled);
-        }
-
-        public void bind(OrderItem order) {
-            customerName.setText(order.getCustomerName());
-            orderDate.setText(order.getOrderDate());
-            orderId.setText(order.getOrderId());
-            orderTotal.setText(order.getOrderTotal());
-            itemName.setText(order.getItemName());
-            itemQuantity.setText(order.getItemQuantity());
-            itemPrice.setText(order.getItemPrice());
-            orderMessage.setText(order.getOrderMessage());
-        }
-    }
-
-    // View Holder for On Delivery Orders
-    static class OndeliveryOrderViewHolder extends RecyclerView.ViewHolder {
-        private final TextView customerName;
-        private final TextView orderDate;
-        private final TextView orderId;
-        private final TextView orderTotal;
-        private final TextView itemName;
-        private final TextView itemQuantity;
-        private final TextView itemPrice;
-        private final TextView orderMessage;
-
-        public OndeliveryOrderViewHolder(View itemView) {  // Corrected constructor name
-            super(itemView);
-            customerName = itemView.findViewById(R.id.customer_name_cancelled);  // Ensure unique ID
-            orderDate = itemView.findViewById(R.id.order_date_cancelled);
-            orderId = itemView.findViewById(R.id.order_id_cancelled);
-            orderTotal = itemView.findViewById(R.id.order_total_cancelled);
-            itemName = itemView.findViewById(R.id.item_name_cancelled);
-            itemQuantity = itemView.findViewById(R.id.item_quantity_cancelled);
-            itemPrice = itemView.findViewById(R.id.item_price_cancelled);
-            orderMessage = itemView.findViewById(R.id.order_message_cancelled);
-        }
-
-        public void bind(OrderItem order) {
-            customerName.setText(order.getCustomerName());
-            orderDate.setText(order.getOrderDate());
-            orderId.setText(order.getOrderId());
-            orderTotal.setText(order.getOrderTotal());
-            itemName.setText(order.getItemName());
-            itemQuantity.setText(order.getItemQuantity());
-            itemPrice.setText(order.getItemPrice());
-            orderMessage.setText(order.getOrderMessage());
-        }
-    }
-
-    // View Holder for Cancelled Orders
-    static class CancelledOrderViewHolder extends RecyclerView.ViewHolder {
-        private final TextView customerName;
-        private final TextView orderDate;
-        private final TextView orderId;
-        private final TextView orderTotal;
-        private final TextView itemName;
-        private final TextView itemQuantity;
-        private final TextView itemPrice;
-        private final TextView orderMessage;
-
-        public CancelledOrderViewHolder(View itemView) {
-            super(itemView);
-            customerName = itemView.findViewById(R.id.customer_name_cancelled);  // Ensure unique ID
-            orderDate = itemView.findViewById(R.id.order_date_cancelled);
-            orderId = itemView.findViewById(R.id.order_id_cancelled);
-            orderTotal = itemView.findViewById(R.id.order_total_cancelled);
-            itemName = itemView.findViewById(R.id.item_name_cancelled);
-            itemQuantity = itemView.findViewById(R.id.item_quantity_cancelled);
-            itemPrice = itemView.findViewById(R.id.item_price_cancelled);
-            orderMessage = itemView.findViewById(R.id.order_message_cancelled);
-        }
-
-        public void bind(OrderItem order) {
-            customerName.setText(order.getCustomerName());
-            orderDate.setText(order.getOrderDate());
-            orderId.setText(order.getOrderId());
-            orderTotal.setText(order.getOrderTotal());
-            itemName.setText(order.getItemName());
-            itemQuantity.setText(order.getItemQuantity());
-            itemPrice.setText(order.getItemPrice());
-            orderMessage.setText(order.getOrderMessage());
+            id_order = itemView.findViewById(R.id.order_id_cancelled_order);
+            customerName = itemView.findViewById(R.id.customer_name_cancelled_order);
+            orderDate = itemView.findViewById(R.id.order_date_cancelled_order);
+            orderTotal = itemView.findViewById(R.id.order_total_cancelled_order);
+            status_order = itemView.findViewById(R.id.order_date_cancelled_order);
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.manager_food.Adapter;
 
+// Similar imports as above
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,25 +16,21 @@ import com.example.manager_food.model.OrderItem;
 
 import java.util.ArrayList;
 import java.util.List;
-
-public class CancelledOrdersAdapter extends RecyclerView.Adapter<CancelledOrdersAdapter.CancelledOrderViewHolder> {
+public class CompletedOrdersAdapter extends RecyclerView.Adapter<CompletedOrdersAdapter.CompletedOrderViewHolder> {
 
     private final Context context;
     private final List<OrderItem> orderList;
     private final OnOrderClickListener onOrderClickListener;
 
-    // Define a constant for the "Cancelled" status
-    private static final String CANCELLED_STATUS = "Cancelled";
-    private static final int CANCELLED_STATUS_ID = 3; // Assuming 3 corresponds to "Cancelled"
+    private static final String COMPLETED_STATUS = "Completed";
+    private static final int COMPLETED_STATUS_ID = 6; // Assuming 6 corresponds to "Completed"
 
-    public CancelledOrdersAdapter(Context context, List<OrderItem> orderList, OnOrderClickListener onOrderClickListener) {
+    public CompletedOrdersAdapter(Context context, List<OrderItem> orderList, OnOrderClickListener onOrderClickListener) {
         this.context = context;
         this.onOrderClickListener = onOrderClickListener;
-
-        // Filter the orders to show only cancelled ones
         this.orderList = new ArrayList<>();
         for (OrderItem order : orderList) {
-            if (CANCELLED_STATUS.equals(order.getOrderStatus()) || order.getIdStatutCommande() == CANCELLED_STATUS_ID) {
+            if (COMPLETED_STATUS.equals(order.getOrderStatus()) || order.getIdStatutCommande() == COMPLETED_STATUS_ID) {
                 this.orderList.add(order);
             }
         }
@@ -41,14 +38,14 @@ public class CancelledOrdersAdapter extends RecyclerView.Adapter<CancelledOrders
 
     @NonNull
     @Override
-    public CancelledOrderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public CompletedOrderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.frag_cancelled_order, parent, false);
-        return new CancelledOrderViewHolder(view);
+        return new CompletedOrderViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CancelledOrderViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull CompletedOrderViewHolder holder, int position) {
         OrderItem order = orderList.get(position);
         holder.bind(order);
         holder.itemView.setOnClickListener(v -> onOrderClickListener.onOrderClick(order));
@@ -63,16 +60,16 @@ public class CancelledOrdersAdapter extends RecyclerView.Adapter<CancelledOrders
         void onOrderClick(OrderItem order);
     }
 
-    static class CancelledOrderViewHolder extends RecyclerView.ViewHolder {
+    static class CompletedOrderViewHolder extends RecyclerView.ViewHolder {
+        // Similar fields and constructor as NewOrderViewHolder
         private final TextView customerName;
         private final TextView orderDate;
         private final TextView orderId;
         private final TextView orderTotal;
         private final TextView orderMessage;
-        private  final TextView orderStatus;
-        private final RecyclerView itemsRecyclerView; // New RecyclerView for order items
-
-        public CancelledOrderViewHolder(View itemView) {
+        private final TextView orderStatus;
+        private final RecyclerView itemsRecyclerView;
+        public CompletedOrderViewHolder(View itemView) {
             super(itemView);
             customerName = itemView.findViewById(R.id.customer_name_cancelled_order);
             orderDate = itemView.findViewById(R.id.order_date_cancelled_order);
@@ -80,17 +77,16 @@ public class CancelledOrdersAdapter extends RecyclerView.Adapter<CancelledOrders
             orderStatus = itemView.findViewById(R.id.order_Status_tv_cancelled_oder);
             orderTotal = itemView.findViewById(R.id.order_total_cancelled_order);
             orderMessage = itemView.findViewById(R.id.order_message_cancelled_order);
-            itemsRecyclerView = itemView.findViewById(R.id.recycler_view_cancelled_items); // Initialize RecyclerView for items
+            itemsRecyclerView = itemView.findViewById(R.id.recycler_view_cancelled_items);
         }
-
         public void bind(OrderItem order) {
+            // Similar binding logic as NewOrderViewHolder
             customerName.setText(order.getCustomerName());
             orderDate.setText(order.getOrderDate());
             orderId.setText(order.getOrderId());
             orderTotal.setText(String.format("%s %s", order.getOrderTotal(), itemView.getContext()));
             orderMessage.setText(order.getOrderMessage());
             orderStatus.setText(order.getOrderStatus());
-            // Set up the items RecyclerView
             OrderItemsAdapter itemsAdapter = new OrderItemsAdapter(order.getItems());
             itemsRecyclerView.setAdapter(itemsAdapter);
             itemsRecyclerView.setLayoutManager(new LinearLayoutManager(itemView.getContext()));

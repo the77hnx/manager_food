@@ -1,8 +1,6 @@
 package com.example.manager_food;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,14 +8,13 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.manager_food.model.OrderItem;
-import com.example.manager_food.Fragement.AllOrdersFragment;
+import com.example.manager_food.Fragement.AwaitingDeliveryOrdersFragment;
 import com.example.manager_food.Fragement.CancelledOrdersFragment;
+import com.example.manager_food.Fragement.CompletedOrdersFragment;
+import com.example.manager_food.Fragement.InDeliveryOrdersFragment;
+import com.example.manager_food.Fragement.InPreparationOrdersFragment;
 import com.example.manager_food.Fragement.NewOrdersFragment;
-import com.example.manager_food.Fragement.OngoingOrdersFragment;
-import com.example.manager_food.Fragement.OnloadingOrdersFragment;
-import com.example.manager_food.Fragement.ComplettedOrdersFragment;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.example.manager_food.model.OrderItem;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -25,7 +22,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OurOrdersActivity extends AppCompatActivity {
-    private List<OrderItem> sampleOrders;
+
+    private List<OrderItem> case0Orders = new ArrayList<>();
+    private List<OrderItem> case1Orders = new ArrayList<>();
+    private List<OrderItem> case2Orders = new ArrayList<>();
+    private List<OrderItem> case3Orders = new ArrayList<>();
+    private List<OrderItem> case4Orders = new ArrayList<>();
+    private List<OrderItem> case5Orders = new ArrayList<>();
+    private FragmentStateAdapter pagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,127 +39,69 @@ public class OurOrdersActivity extends AppCompatActivity {
         TabLayout tabLayout = findViewById(R.id.tabLayout);
         ViewPager2 viewPager = findViewById(R.id.viewPager);
 
-        sampleOrders = getSampleOrders();
+        fetchOrdersFromServer(); // Fetch orders from the server
 
-        // Setup bottom navigation view
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView_os);
-        bottomNavigationView.setSelectedItemId(R.id.navigation_basket); // Change this based on the activity
+        setupViewPager(viewPager); // Set up the ViewPager with the adapter
+        setupTabLayout(tabLayout, viewPager); // Set up the TabLayout with the ViewPager
+    }
 
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int itemId = item.getItemId();
-                if (itemId == R.id.navigation_home) {
-                    // Navigate to ShopsActivity
-                    Intent intent = new Intent(OurOrdersActivity.this, ShopMainActivity.class);
-                    startActivity(intent);
-                    return true;
-                } else if (itemId == R.id.navigation_following) {
-                    // Navigate to ShowShopDetailsActivity
-                    startActivity(new Intent(OurOrdersActivity.this, ShowShopDetailsActivity.class));
-                    return true;
-                } else if (itemId == R.id.navigation_basket) {
-                    // Navigate to OurOrdersActivity
-                    startActivity(new Intent(OurOrdersActivity.this, OurOrdersActivity.class));
-                    return true;
-                } else if (itemId == R.id.navigation_profile) {
-                    // Navigate to ProfileActivity
-                    startActivity(new Intent(OurOrdersActivity.this, EditProfileActivity.class));
-                    return true;
-                }
-                return false;
-            }
-        });
-
-        FragmentStateAdapter pagerAdapter = new FragmentStateAdapter(getSupportFragmentManager(), getLifecycle()) {
+    private void setupViewPager(ViewPager2 viewPager) {
+        pagerAdapter = new FragmentStateAdapter(this) {
             @NonNull
             @Override
             public Fragment createFragment(int position) {
-                // Return the appropriate fragment based on the position
                 switch (position) {
                     case 0:
-                        return NewOrdersFragment.newInstance(sampleOrders);
+                        return NewOrdersFragment.newInstance(case0Orders);
                     case 1:
-                        return OngoingOrdersFragment.newInstance(sampleOrders);
+                        return InPreparationOrdersFragment.newInstance(case1Orders);
                     case 2:
-                        return OnloadingOrdersFragment.newInstance(sampleOrders);
+                        return InDeliveryOrdersFragment.newInstance(case2Orders);
                     case 3:
-                        return CancelledOrdersFragment.newInstance(sampleOrders);
+                        return AwaitingDeliveryOrdersFragment.newInstance(case3Orders);
                     case 4:
-                        return ComplettedOrdersFragment.newInstance(sampleOrders);
+                        return CompletedOrdersFragment.newInstance(case4Orders);
+                    case 5:
+                        return CancelledOrdersFragment.newInstance(case5Orders);
                     default:
-                        return new Fragment(); // Return a default fragment
+                        return new Fragment();
                 }
             }
 
             @Override
             public int getItemCount() {
-                return 5; // Number of tabs
+                return 6; // Number of cases/tabs
             }
         };
-
         viewPager.setAdapter(pagerAdapter);
-
-        // Set up TabLayout with ViewPager2
-        new TabLayoutMediator(tabLayout, viewPager,
-                (tab, position) -> {
-                    switch (position) {
-                        case 0:
-                            tab.setText("جديد");
-                            break;
-                        case 1:
-                            tab.setText("قيد التحضير");
-                            break;
-                        case 2:
-                            tab.setText("قيد التسليم");
-                            break;
-                        case 3:
-                            tab.setText("ملغية");
-                            break;
-                        case 4:
-                            tab.setText("مكتملة");
-                            break;
-                        default:
-                            tab.setText("Unknown");
-                    }
-                }).attach();
     }
 
-    private List<OrderItem> getSampleOrders() {
-        List<OrderItem> orders = new ArrayList<>();
+    private void setupTabLayout(TabLayout tabLayout, ViewPager2 viewPager) {
+        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+            switch (position) {
+                case 0:
+                    tab.setText("جديد");
+                    break;
+                case 1:
+                    tab.setText("قيد التحضير");
+                    break;
+                case 2:
+                    tab.setText("قيد التوصيل");
+                    break;
+                case 3:
+                    tab.setText("في انتظار التسليم");
+                    break;
+                case 4:
+                    tab.setText("ملغية");
+                    break;
+                case 5:
+                    tab.setText("مكتملة");
+                    break;
+            }
+        }).attach();
+    }
 
-        // Example Orders
-        orders.add(new OrderItem("سليم فاطمة", "21/5/7898", "348", "44.00 دج",
-                "طاكوس", "1", "44.00 دج",
-                "الرسالة: مرحباً، الرجاء وضع الصلصة الخضراء في طلبي وأخبر عامل التوصيل أنه يجب أن يأتي إلى الطابق الثاني لأنني لست في المنزل",
-                "جديد"
-        ));
-        orders.add(new OrderItem("سليم فاطمة", "21/5/7898", "348", "42.00 دج",
-                "بيتزا", "2", "42.00 دج",
-                "الرسالة: مرحباً، الرجاء وضع الصلصة الخضراء في طلبي وأخبر عامل التوصيل أنه يجب أن يأتي إلى الطابق الثاني لأنني لست في المنزل",
-                "جديد"
-        ));
-        orders.add(new OrderItem("سليم فاطمة", "21/5/7898", "348", "42.00 دج",
-                "طاكوس", "2", "42.00 دج",
-                "الرسالة: مرحباً، الرجاء وضع الصلصة الخضراء في طلبي وأخبر عامل التوصيل أنه يجب أن يأتي إلى الطابق الثاني لأنني لست في المنزل",
-                "قيد التحضير"
-        ));
-        orders.add(new OrderItem("سليم فاطمة", "21/5/7898", "348", "42.00 دج",
-                "طاكوس", "2", "42.00 دج",
-                "الرسالة: مرحباً، الرجاء وضع الصلصة الخضراء في طلبي وأخبر عامل التوصيل أنه يجب أن يأتي إلى الطابق الثاني لأنني لست في المنزل",
-                "قيد التسليم"
-        ));
-        orders.add(new OrderItem("سليم فاطمة", "21/5/7898", "348", "42.00 دج",
-                "طاكوس", "2", "42.00 دج",
-                "الرسالة: مرحباً، الرجاء وضع الصلصة الخضراء في طلبي وأخبر عامل التوصيل أنه يجب أن يأتي إلى الطابق الثاني لأنني لست في المنزل",
-                "ملغية"
-        ));
-        orders.add(new OrderItem("سليم فاطمة", "21/5/7898", "348", "42.00 دج",
-                "طاكوس", "2", "42.00 دج",
-                "الرسالة: مرحباً، الرجاء وضع الصلصة الخضراء في طلبي وأخبر عامل التوصيل أنه يجب أن يأتي إلى الطابق الثاني لأنني لست في المنزل",
-                "مكتملة"
-        ));
-
-        return orders;
+    private void fetchOrdersFromServer() {
+        // Simulate fetching orders and populating the lists like case0Orders, case1Orders, etc.
     }
 }

@@ -3,24 +3,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layoutDirection="rtl"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Example content for the CancelledOrdersFragment -->
+    <!-- Example content for the AllOrdersFragment -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingBottom="120dp"
         android:orientation="vertical">
-
-        <ProgressBar
-            android:id="@+id/progressBar_Onloading"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="gone" />
-
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewOnloadingOrders"
+            android:id="@+id/recyclerViewInPreparation"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="16dp"

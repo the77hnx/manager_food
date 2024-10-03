@@ -1,6 +1,5 @@
 package com.example.manager_food.Adapter;
 
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,9 +22,9 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         void onOrderClick(OrderItem order);
     }
 
-    public OrderAdapter(List<OrderItem> orders, OnOrderClickListener onOrderClickListener) {
+    public OrderAdapter(List<OrderItem> orders, OnOrderClickListener listener) {
         this.orders = orders;
-        this.onOrderClickListener = onOrderClickListener;
+        this.onOrderClickListener = listener;
     }
 
     @NonNull
@@ -38,7 +37,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
     @Override
     public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
         OrderItem order = orders.get(position);
-        holder.bind(order, onOrderClickListener);
+        holder.bind(order);
     }
 
     @Override
@@ -46,19 +45,29 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         return orders.size();
     }
 
-    static class OrderViewHolder extends RecyclerView.ViewHolder {
-        private TextView orderSummary;
+    class OrderViewHolder extends RecyclerView.ViewHolder {
+        TextView customerName;
+        TextView orderDate;
+        TextView orderTotal;
 
         public OrderViewHolder(@NonNull View itemView) {
             super(itemView);
-            orderSummary = itemView.findViewById(R.id.order_total_cancelled); // Update with actual ID
+            customerName = itemView.findViewById(R.id.customer_name_cancelled_order);
+            orderDate = itemView.findViewById(R.id.order_date_cancelled_order);
+            orderTotal = itemView.findViewById(R.id.order_total_cancelled_order);
+
+            itemView.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION) {
+                    onOrderClickListener.onOrderClick(orders.get(position));
+                }
+            });
         }
 
-        public void bind(final OrderItem order, final OnOrderClickListener listener) {
-            // Bind order data to view
-            orderSummary.setText(order.getOrderTotal()); // Adjust based on your layout
-
-            itemView.setOnClickListener(v -> listener.onOrderClick(order));
+        public void bind(OrderItem order) {
+            customerName.setText(order.getCustomerName());
+            orderDate.setText(order.getOrderDate());
+            orderTotal.setText(String.valueOf(order.getOrderTotal()));
         }
     }
 }

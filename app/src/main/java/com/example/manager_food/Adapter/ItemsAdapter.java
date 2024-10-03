@@ -19,12 +19,14 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemViewHold
 
     private List<Item> itemList;
     private List<Item> filteredItemList;
+    private List<Item> originalItemList; // Added original item list
     private Context context;
     private OnItemClickListener onItemClickListener;
 
     public ItemsAdapter(List<Item> itemList, Context context) {
         this.itemList = itemList;
-        this.filteredItemList = new ArrayList<>(itemList); // Initialize with all items
+        this.filteredItemList = new ArrayList<>(itemList);
+        this.originalItemList = new ArrayList<>(itemList); // Initialize original list
         this.context = context;
     }
 
@@ -37,15 +39,15 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemViewHold
 
     @Override
     public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
-        Item item = filteredItemList.get(position);
+        Item item = itemList.get(position);
 
         holder.nameTextView.setText(item.getName());
         holder.priceTextView.setText(String.format("$%.2f", item.getPrice()));
-        holder.categoryTextView.setText(item.getCategory());
         holder.descriptionTextView.setText(item.getDescription());
 
-        // Set image
-        holder.imageView.setImageResource(item.getImageResId());
+        // Load image using an image loading library (like Glide or Picasso)
+        // Example using Glide:
+        // Glide.with(context).load(item.getImageUrl()).into(holder.imageView);
 
         holder.itemView.setOnClickListener(v -> {
             if (onItemClickListener != null) {
@@ -77,27 +79,9 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemViewHold
 
     public void addItem(Item item) {
         itemList.add(item);
-        filterItemsByCategory("All"); // Refresh the list
-    }
-
-    public void addCategory(Category category) {
-        // Handle adding category
-    }
-
-    public void filterItemsByCategory(String category) {
-        if (category.equals("All")) {
-            filteredItemList = new ArrayList<>(itemList);
-        } else {
-            filteredItemList = new ArrayList<>();
-            for (Item item : itemList) {
-                if (item.getCategory().equals(category)) {
-                    filteredItemList.add(item);
-                }
-            }
-        }
+        filteredItemList.add(item); // Add to filtered list too
         notifyDataSetChanged();
     }
-
     public interface OnItemClickListener {
         void onItemClick(Item item);
         void onEditClick(Item item);
@@ -107,7 +91,6 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemViewHold
     public static class ItemViewHolder extends RecyclerView.ViewHolder {
         private TextView nameTextView;
         private TextView priceTextView;
-        private TextView categoryTextView;
         private TextView descriptionTextView;
         private ImageView imageView;
         private Button editButton;
@@ -117,7 +100,6 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemViewHold
             super(itemView);
             nameTextView = itemView.findViewById(R.id.productNameTextView_frag);
             priceTextView = itemView.findViewById(R.id.productPriceTextView_frag);
-            categoryTextView = itemView.findViewById(R.id.category_text);
             descriptionTextView = itemView.findViewById(R.id.item_description_popup);
             imageView = itemView.findViewById(R.id.product_image);
             editButton = itemView.findViewById(R.id.editproduct);

@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.manager_food.Adapter.NewOrdersAdapter;
+import com.example.manager_food.DetailsOrderActivity;
 import com.example.manager_food.NewOrderActivity;
 import com.example.manager_food.R;
 import com.example.manager_food.model.OrderItem;
@@ -23,17 +24,17 @@ import java.util.List;
 public class NewOrdersFragment extends Fragment implements NewOrdersAdapter.OnOrderClickListener {
 
     private RecyclerView recyclerViewOrders;
-    private NewOrdersAdapter orderAdapter;
+    private NewOrdersAdapter newOrderAdapter;
     private List<OrderItem> orderList;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_cancelled_orders, container, false);
+        View view = inflater.inflate(R.layout.fragment_new_orders, container, false);
 
-        recyclerViewOrders = view.findViewById(R.id.recyclerViewCancelled);
-        recyclerViewOrders.setLayoutManager(new LinearLayoutManager(getContext()));
+        initializeViews(view);
+        setupRecyclerView();
 
         if (getArguments() != null) {
             orderList = getArguments().getParcelableArrayList("orders");
@@ -42,19 +43,25 @@ public class NewOrdersFragment extends Fragment implements NewOrdersAdapter.OnOr
             orderList = new ArrayList<>();
         }
 
-        List<OrderItem> filteredOrders = filterNewOrders(orderList);
-
-        orderAdapter = new NewOrdersAdapter(getContext(), filteredOrders, this);
-        recyclerViewOrders.setAdapter(orderAdapter);
+        newOrderAdapter = new NewOrdersAdapter(getContext(), orderList, this::onOrderClick);
+        recyclerViewOrders.setAdapter(newOrderAdapter);
 
         return view;
+    }
+
+    private void initializeViews(View view) {
+        recyclerViewOrders = view.findViewById(R.id.recyclerViewNewOrders);
+    }
+
+    private void setupRecyclerView() {
+        recyclerViewOrders.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 
     private List<OrderItem> filterNewOrders(List<OrderItem> orders) {
         List<OrderItem> newOrders = new ArrayList<>();
         if (orders != null) {
             for (OrderItem order : orders) {
-                if ("جديد".equals(order.getOrderStatus())) {
+                if ("جديدة".equals(order.getOrderStatus())) { // Arabic for "New"
                     newOrders.add(order);
                 }
             }
@@ -72,7 +79,7 @@ public class NewOrdersFragment extends Fragment implements NewOrdersAdapter.OnOr
 
     @Override
     public void onOrderClick(OrderItem order) {
-        Intent intent = new Intent(getActivity(), NewOrderActivity.class);
+        Intent intent = new Intent(getActivity(), DetailsOrderActivity.class);
         intent.putExtra("CUSTOMER_NAME", order.getCustomerName());
         intent.putExtra("ORDER_DATE", order.getOrderDate());
         intent.putExtra("ORDER_TOTAL", order.getOrderTotal());

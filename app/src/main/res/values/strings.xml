@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">delivery_food</string>
+    <string name="app_name">Fissa Manager</string>
     <string name="basket">Basket</string>
     <string name="home">Home</string>
     <string name="following">Following</string>

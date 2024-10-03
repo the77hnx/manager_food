@@ -3,23 +3,19 @@ package com.example.manager_food;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.location.Address;
-import android.location.Geocoder;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -27,32 +23,44 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
-import com.google.android.gms.location.Priority;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.snackbar.Snackbar;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Locale;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class SignNewShopActivity extends AppCompatActivity {
 
     private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int REQUEST_PERMISSION_CAMERA = 2;
+    private static final int REQUEST_PERMISSION_STORAGE = 3;
 
-    private EditText etNumber, etName, etDescriptionRes, etPlacesRes;
-    private Button selectImageResButton, resIDButton, cardIDButton, gpsButton, btnPhoneLogin;
-    private ImageView selectedImageRes, selectedResID, selectedCardID;
-    private FusedLocationProviderClient fusedLocationClient;
-    private String selectedLocation;
+    private EditText etNumber, etNameMag, etName, etEmail, etPassword, etConfirmPassword, etDescriptionRes, etPlacesRes, etIdNational, etEnregistrement;
+    private Button btnPhoneLogin;
+    private ImageView selectedImageRes;
+    private OkHttpClient client = new OkHttpClient();
+    private Uri photoUri;
+
+    private final ActivityResultLauncher<String> selectImageResLauncher = registerForActivityResult(
+            new ActivityResultContracts.GetContent(),
+            new ActivityResultCallback<Uri>() {
+                @Override
+                public void onActivityResult(Uri uri) {
+                    if (uri != null) {
+                        displayImage(uri);
+                    }
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,223 +69,132 @@ public class SignNewShopActivity extends AppCompatActivity {
 
         initializeViews();
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
-        selectImageResButton.setOnClickListener(v -> showImagePickerDialog(selectImageResLauncher));
-        resIDButton.setOnClickListener(v -> showImagePickerDialog(resIDLauncher));
-        cardIDButton.setOnClickListener(v -> showImagePickerDialog(cardIDLauncher));
-        gpsButton.setOnClickListener(v -> checkLocationSettings());
         btnPhoneLogin.setOnClickListener(v -> validateAndSubmit());
     }
 
     private void initializeViews() {
         etNumber = findViewById(R.id.etnumber);
         etName = findViewById(R.id.etName);
+        etNameMag = findViewById(R.id.etNameMag);
+        etEmail = findViewById(R.id.etemailsign);
+        etPassword = findViewById(R.id.etPasswordsign);
+        etConfirmPassword = findViewById(R.id.etconfirmPassword);
         etDescriptionRes = findViewById(R.id.etDescriptionres);
         etPlacesRes = findViewById(R.id.etplacesres);
-
-        selectImageResButton = findViewById(R.id.selectImageresButton);
-        resIDButton = findViewById(R.id.ResIDButton);
-        cardIDButton = findViewById(R.id.CardIDButton);
-        gpsButton = findViewById(R.id.GPSButton);
+        etIdNational = findViewById(R.id.etIdNational);
+        etEnregistrement = findViewById(R.id.etN0Enrg);
         btnPhoneLogin = findViewById(R.id.btnsendinfores);
-
         selectedImageRes = findViewById(R.id.selectedImageRes);
-        selectedResID = findViewById(R.id.selectedResID);
-        selectedCardID = findViewById(R.id.selectedCardID);
 
-        // Set initial visibility to gone
         selectedImageRes.setVisibility(View.GONE);
-        selectedResID.setVisibility(View.GONE);
-        selectedCardID.setVisibility(View.GONE);
     }
 
-    private void showImagePickerDialog(ActivityResultLauncher<String> launcher) {
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
-        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_image_picker, null);
-        bottomSheetDialog.setContentView(dialogView);
 
-        Button chooseFromGallery = dialogView.findViewById(R.id.btnPickGallery);
-        Button capturePhoto = dialogView.findViewById(R.id.btnCaptureCamera);
 
-        chooseFromGallery.setOnClickListener(v -> {
-            launcher.launch("image/*");
-            bottomSheetDialog.dismiss();
-        });
-
-        capturePhoto.setOnClickListener(v -> {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-                } else {
-                    Toast.makeText(this, "No camera app available", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_IMAGE_CAPTURE);
-            }
-            bottomSheetDialog.dismiss();
-        });
-
-        bottomSheetDialog.show();
-    }
-
-    ActivityResultLauncher<String> selectImageResLauncher = registerForActivityResult(
-            new ActivityResultContracts.GetContent(),
-            new ActivityResultCallback<Uri>() {
-                @Override
-                public void onActivityResult(Uri uri) {
-                    if (uri != null) {
-                        displayImage(uri, selectedImageRes, selectImageResButton);
-                    }
-                }
-            });
-
-    ActivityResultLauncher<String> resIDLauncher = registerForActivityResult(
-            new ActivityResultContracts.GetContent(),
-            new ActivityResultCallback<Uri>() {
-                @Override
-                public void onActivityResult(Uri uri) {
-                    if (uri != null) {
-                        displayImage(uri, selectedResID, resIDButton);
-                    }
-                }
-            });
-
-    ActivityResultLauncher<String> cardIDLauncher = registerForActivityResult(
-            new ActivityResultContracts.GetContent(),
-            new ActivityResultCallback<Uri>() {
-                @Override
-                public void onActivityResult(Uri uri) {
-                    if (uri != null) {
-                        displayImage(uri, selectedCardID, cardIDButton);
-                    }
-                }
-            });
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
-            Bundle extras = data.getExtras();
-            if (extras != null) {
-                Bitmap imageBitmap = (Bitmap) extras.get("data");
-                if (imageBitmap != null) {
-                    selectedImageRes.setImageBitmap(imageBitmap);
-                    selectImageResButton.setVisibility(View.GONE);
-                    selectedImageRes.setVisibility(View.VISIBLE);
-                } else {
-                    Toast.makeText(this, "Failed to capture image", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
-    }
-
-    private void displayImage(Uri uri, ImageView imageView, Button button) {
-        if (uri != null) {
-            imageView.setImageURI(uri);
-            button.setVisibility(View.GONE);
-            imageView.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void checkLocationSettings() {
-        LocationRequest locationRequest = LocationRequest.create()
-                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
-                .setInterval(10000)
-                .setFastestInterval(5000);
-
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
-                .addLocationRequest(locationRequest);
-
-        Task<LocationSettingsResponse> task = LocationServices.getSettingsClient(this)
-                .checkLocationSettings(builder.build());
-
-        task.addOnSuccessListener(this, locationSettingsResponse -> requestLocationPermission());
-
-        task.addOnFailureListener(this, e -> {
-            if (e instanceof com.google.android.gms.common.api.ResolvableApiException) {
-                try {
-                    com.google.android.gms.common.api.ResolvableApiException resolvable = (com.google.android.gms.common.api.ResolvableApiException) e;
-                    resolvable.startResolutionForResult(SignNewShopActivity.this, 1);
-                } catch (IntentSender.SendIntentException sendEx) {
-                    // Ignore the error.
-                }
+            if (photoUri != null) {
+                displayImage(photoUri);
             } else {
-                Snackbar.make(findViewById(R.id.main), "Location settings are not satisfied.", Snackbar.LENGTH_INDEFINITE)
-                        .setAction("Settings", v -> {
-                            // Open settings
-                        }).show();
+                Toast.makeText(this, "Failed to capture image", Toast.LENGTH_SHORT).show();
             }
-        });
-    }
-
-    private void requestLocationPermission() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-        } else {
-            getCurrentLocation();
         }
     }
 
-    private void getCurrentLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
-                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(Location location) {
-                            if (location != null) {
-                                Geocoder geocoder = new Geocoder(SignNewShopActivity.this, Locale.getDefault());
-                                try {
-                                    List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-                                    if (addresses != null && !addresses.isEmpty()) {
-                                        Address address = addresses.get(0);
-                                        selectedLocation = address.getAddressLine(0);
-                                        etPlacesRes.setText(selectedLocation);
-                                    } else {
-                                        Toast.makeText(SignNewShopActivity.this, "Unable to get location", Toast.LENGTH_SHORT).show();
-                                    }
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            } else {
-                                Toast.makeText(SignNewShopActivity.this, "Location is null", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    })
-                    .addOnFailureListener(this, new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            e.printStackTrace();
-                        }
-                    });
+    private void displayImage(Uri uri) {
+        if (uri != null) {
+            selectedImageRes.setImageURI(uri);
+            selectedImageRes.setVisibility(View.VISIBLE);
         }
     }
 
     private void validateAndSubmit() {
         String number = etNumber.getText().toString().trim();
+        String namemag = etNameMag.getText().toString().trim();
         String name = etName.getText().toString().trim();
+        String email = etEmail.getText().toString().trim();
+        String password = etPassword.getText().toString().trim();
+        String confirmPassword = etConfirmPassword.getText().toString().trim();
         String description = etDescriptionRes.getText().toString().trim();
         String places = etPlacesRes.getText().toString().trim();
+        String enregistrement = etEnregistrement.getText().toString().trim();
+        String idNational = etIdNational.getText().toString().trim();
 
-        if (number.isEmpty() || name.isEmpty() || description.isEmpty() || places.isEmpty() ||
-                selectedImageRes.getDrawable() == null || selectedResID.getDrawable() == null ||
-                selectedCardID.getDrawable() == null || selectedLocation == null) {
+        // Validate inputs
+        if (number.isEmpty() || namemag.isEmpty() || name.isEmpty() || email.isEmpty() || password.isEmpty() ||
+                confirmPassword.isEmpty() || description.isEmpty() || places.isEmpty() ||
+                enregistrement.isEmpty() || idNational.isEmpty()) {
             Toast.makeText(this, "All fields and images must be filled", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Convert images to Bitmap for further processing or upload
-        BitmapDrawable resDrawable = (BitmapDrawable) selectedImageRes.getDrawable();
-        BitmapDrawable resIdDrawable = (BitmapDrawable) selectedResID.getDrawable();
-        BitmapDrawable cardIdDrawable = (BitmapDrawable) selectedCardID.getDrawable();
+        // Check if passwords match
+        if (!password.equals(confirmPassword)) {
+            Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        // Here, you can convert them to Bitmaps or any further processing you need.
-        // Bitmap resBitmap = resDrawable.getBitmap();
-        // Bitmap resIdBitmap = resIdDrawable.getBitmap();
-        // Bitmap cardIdBitmap = cardIdDrawable.getBitmap();
+        // Convert image to file and upload
+        uploadImageAndSubmitData(
+                name, namemag, email, password, number, description, places, enregistrement, idNational
+        );
 
-        // Further processing or submission of data...
-        Toast.makeText(this, "All fields and images are filled, ready to submit", Toast.LENGTH_SHORT).show();
+        // Optionally, redirect to another activity (like HomeActivity)
+        Intent intent = new Intent(SignNewShopActivity.this, ShopInformationActivity.class);
+        startActivity(intent);
+        finish();
+
+    }
+
+    private void uploadImageAndSubmitData(
+            String namemag, String name, String email, String password, String number, String description, String address,
+            String enregistrement, String idNational) {
+
+        MultipartBody.Builder builder = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("etNameMag", namemag)
+                .addFormDataPart("etemail", email)
+                .addFormDataPart("etPassword", password)
+                .addFormDataPart("etnumber", number)
+                .addFormDataPart("etName", name)
+                .addFormDataPart("etDescriptionres", description)
+                .addFormDataPart("etplacesres", address)
+                .addFormDataPart("etN0Enrg", enregistrement)
+                .addFormDataPart("etIdNational", idNational);
+
+        RequestBody requestBody = builder.build();
+
+        Request request = new Request.Builder()
+                .url("http://192.168.1.33/fissa/Manager/Signup_Magisin.php")
+                .post(requestBody)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                Log.e("SignNewShopActivity", "Failed to submit data: " + e.getMessage());
+                runOnUiThread(() -> {
+                    Toast.makeText(SignNewShopActivity.this, "Failed to submit: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    Log.d("SignNewShopActivity", "Form submitted successfully!");
+                    runOnUiThread(() -> {
+                        Toast.makeText(SignNewShopActivity.this, "Form submitted successfully!", Toast.LENGTH_SHORT).show();
+                    });
+                } else {
+                    Log.e("SignNewShopActivity", "Error during submission: " + response.message());
+                    runOnUiThread(() -> {
+                        Toast.makeText(SignNewShopActivity.this, "Error: " + response.message(), Toast.LENGTH_SHORT).show();
+                    });
+                }
+            }
+        });
     }
 }

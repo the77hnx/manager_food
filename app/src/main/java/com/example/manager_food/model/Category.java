@@ -1,19 +1,32 @@
 package com.example.manager_food.model;
 
-public class Category {
-    private static String name;
-    private int imageResId;
+import java.io.Serializable;
 
-    public Category(String name, int imageResId) {
+public class Category implements Serializable {
+
+    private int id; // Category ID
+    private String name; // Category name
+
+    // Constructor
+    public Category(int id, String name) {
+        this.id = id;
         this.name = name;
-        this.imageResId = imageResId;
     }
 
-    public static String getName() {
+    // Getters and setters
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
         return name;
     }
 
-    public int getImageResId() {
-        return imageResId;
+    public void setName(String name) {
+        this.name = name;
     }
 }

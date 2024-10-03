@@ -4,12 +4,9 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.manager_food.R;
 import com.example.manager_food.model.Category;
 
@@ -38,10 +35,10 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Category category = categoryList.get(position);
         holder.categoryTextView.setText(category.getName());
-        holder.categoryImageView.setImageResource(category.getImageResId());
+
         holder.itemView.setOnClickListener(v -> {
             if (onCategoryClickListener != null) {
-                onCategoryClickListener.onCategoryClick(category.getName());
+                onCategoryClickListener.onCategoryClick(category);
             }
         });
     }
@@ -51,27 +48,20 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         return categoryList.size();
     }
 
-    public void addCategory(Category newCategory) {
-        categoryList.add(newCategory);
-        notifyDataSetChanged();
-    }
-
-    public void setOnCategoryClickListener(OnCategoryClickListener onCategoryClickListener) {
-        this.onCategoryClickListener = onCategoryClickListener;
+    public void setOnCategoryClickListener(OnCategoryClickListener listener) {
+        this.onCategoryClickListener = listener;
     }
 
     public interface OnCategoryClickListener {
-        void onCategoryClick(String category);
+        void onCategoryClick(Category category);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView categoryTextView;
-        ImageView categoryImageView;
+        private TextView categoryTextView;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            categoryTextView = itemView.findViewById(R.id.card_text_title);
-            categoryImageView = itemView.findViewById(R.id.shapeableImageViewcat);
+            categoryTextView = itemView.findViewById(R.id.card_text_title); // Adjust ID as necessary
         }
     }
 }

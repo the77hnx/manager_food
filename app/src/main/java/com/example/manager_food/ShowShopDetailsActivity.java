@@ -1,20 +1,14 @@
 package com.example.manager_food;
 
-
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,44 +24,45 @@ import com.example.manager_food.model.Category;
 import com.example.manager_food.model.Item;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ShowShopDetailsActivity extends AppCompatActivity {
-    private static final int PICK_IMAGE_REQUEST = 1; // Request code for image picking
-
+    private static final String PREFS_NAME = "MyPrefs";
+    private static final String OFFER_STATUS_KEY = "offer_status";
 
     private RecyclerView recyclerViewCat;
     private RecyclerView recyclerViewItem;
     private CategoryAdapter categoryAdapter;
     private ItemsAdapter itemsAdapter;
     private Switch offerSwitch;
-    private TextView shopNameTextView, valCompletedTextView, valRatingTextView, offerStatusTextView;
+    private TextView shopNameTextView, offerStatusTextView;
     private Button addCategoryButton, addProductButton;
-    private Uri selectedImageUri; // To store the URI of the selected image
-
 
     private List<Item> itemList;
-    List<Category> categoryList;
-
-    private static final String PREFS_NAME = "MyPrefs";
-    private static final String OFFER_STATUS_KEY = "offer_status";
+    private List<Category> categoryList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_shop_details);
 
-
-
         // Initialize UI elements
         recyclerViewCat = findViewById(R.id.recycler_view_cat);
         recyclerViewItem = findViewById(R.id.recycler_view_item);
         offerSwitch = findViewById(R.id.offer_switch_details);
         shopNameTextView = findViewById(R.id.shopname_det);
-        valCompletedTextView = findViewById(R.id.valcompleted);
-        valRatingTextView = findViewById(R.id.valrating);
         offerStatusTextView = findViewById(R.id.status_det);
         addCategoryButton = findViewById(R.id.addcategory);
         addProductButton = findViewById(R.id.addproduct);
@@ -89,112 +84,28 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
         // Set up listener for the offerSwitch to sync with offerStatusTextView
         offerSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             updateOfferStatusText(isChecked);
-
-            // Save the offer switch state in SharedPreferences
-            SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
+            SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean(OFFER_STATUS_KEY, isChecked);
             editor.apply();
         });
 
-        // Create a list of categories
-        // Create a list of Category objects
+        // Initialize category and item lists
         categoryList = new ArrayList<>();
-        categoryList.add(new Category("All", R.drawable.image_for_card));  // Replace with actual image resource
-        categoryList.add(new Category("Meat", R.drawable.meat)); // Replace with actual image resource
-        categoryList.add(new Category("pastries", R.drawable.pastries)); // Replace with actual image resource
-        categoryList.add(new Category("vegetables", R.drawable.vegetables)); // Replace with actual image resource
-        categoryList.add(new Category("Drinks", R.drawable.drinks)); // Replace with actual image resource
-
-
-// Initialize category adapter with Category objects
-        categoryAdapter = new CategoryAdapter(categoryList, this);
-
-
-        // Initialize the item list
         itemList = new ArrayList<>();
-        itemList.add(new Item("بيتزا", "Fresh and juicy oranges", 150, R.drawable.pizza, "pastries"));
-        itemList.add(new Item("معكرونة", "Crisp and sweet apples", 200, R.drawable.pasta, "pastries"));
-        itemList.add(new Item("برغر", "Crunchy carrots", 100, R.drawable.burger, "pastries"));
-        itemList.add(new Item("بطاطا محمصة", "Crispy potato chips", 50, R.drawable.potato, "vegetables"));
-        itemList.add(new Item("دجاج", "Refreshing cola drink", 80, R.drawable.chicken, "Meat"));
 
-        // Initialize category adapter
-
-
-        // Set category click listener
-        categoryAdapter.setOnCategoryClickListener(selectedCategory -> {
-            itemsAdapter.filterItemsByCategory(selectedCategory);
-        });
-
-        // Set up the category RecyclerView
-        recyclerViewCat.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        recyclerViewCat.setAdapter(categoryAdapter);
-
-        // Initialize items adapter
+        // Initialize adapters
+        categoryAdapter = new CategoryAdapter(categoryList, this);
         itemsAdapter = new ItemsAdapter(itemList, this);
 
-        // Set up the items RecyclerView
-        recyclerViewItem.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        recyclerViewItem.setAdapter(itemsAdapter);
+        // Setup RecyclerViews
+        setupRecyclerViews();
 
-        // Add category button click listener
-        addCategoryButton.setOnClickListener(v -> {
-            Intent addCategoryIntent = new Intent(ShowShopDetailsActivity.this, AddNewCategoryActivity.class);
-            startActivity(addCategoryIntent);
-        });
-
-        // Add product button click listener
+        // Set up click listeners for buttons
+        addCategoryButton.setOnClickListener(v -> startActivity(new Intent(ShowShopDetailsActivity.this, AddNewCategoryActivity.class)));
         addProductButton.setOnClickListener(v -> {
             Intent addProductIntent = new Intent(ShowShopDetailsActivity.this, AddNewItemActivity.class);
-            ArrayList<String> categoryNames = new ArrayList<>();
-            for (Category category : categoryList) {
-                categoryNames.add(category.getName()); // Use the method that returns the category name
-            }
-// Pass the categories list
-            addProductIntent.putStringArrayListExtra("CATEGORIES_LIST", categoryNames);
+            addProductIntent.putStringArrayListExtra("CATEGORIES_LIST", getCategoryNames());
             startActivity(addProductIntent);
-
-        });
-
-
-        // Set up item click listener for ItemsAdapter
-        itemsAdapter.setOnItemClickListener(new ItemsAdapter.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(Item item) {
-                // Handle item click action here
-            }
-            @Override
-            public void onEditClick(Item item) {
-                Intent editItemIntent = new Intent(ShowShopDetailsActivity.this, AddNewItemActivity.class);
-                editItemIntent.putExtra("ITEM_NAME", item.getName());
-                editItemIntent.putExtra("ITEM_PRICE", String.valueOf(item.getPrice())); // Ensure price is a string
-                editItemIntent.putExtra("ITEM_DESCRIPTION", item.getDescription());
-                editItemIntent.putExtra("ITEM_TYPE", item.getCategory());
-                editItemIntent.putExtra("ITEM_IMAGE_RES_ID", item.getImageResId());
-
-                ArrayList<String> categoryNames = new ArrayList<>();
-                for (Category category : categoryList) {
-                    categoryNames.add(category.getName()); // Use the method that returns the category name
-                }
-// Pass the categories list
-                editItemIntent.putStringArrayListExtra("CATEGORIES_LIST", categoryNames);
-
-                startActivity(editItemIntent);
-            }
-
-
-
-
-            @Override
-            public void onRemoveClick(Item item) {
-                // Handle remove action
-                int position = itemList.indexOf(item);
-                if (position != -1) {
-                    itemList.remove(position);
-                    itemsAdapter.notifyItemRemoved(position);
-                }
-            }
         });
 
         // Setup bottom navigation view
@@ -229,54 +140,89 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
             }
         });
 
-        // Initialize item list
-        // itemList = new ArrayList<>(); // This line is redundant
 
-        // Setup RecyclerViews
-        setupRecyclerViews();
-
-        // Load initial data (dummy data)
-
+        // Fetch data from server
+        fetchDataFromServer();
     }
 
-    // Method to update the offerStatusTextView based on the Switch state
     private void updateOfferStatusText(boolean isChecked) {
         if (isChecked) {
             offerStatusTextView.setText("مفتوح");
-            offerStatusTextView.setTextColor(getResources().getColor(R.color.green)); // Use your green color resource
+            offerStatusTextView.setTextColor(getResources().getColor(R.color.green));
         } else {
             offerStatusTextView.setText("مغلق");
-            offerStatusTextView.setTextColor(getResources().getColor(R.color.red)); // Use your red color resource
+            offerStatusTextView.setTextColor(getResources().getColor(R.color.red));
         }
     }
 
-    // Method to save the state of the offerSwitch
-    private void saveOfferSwitchState(boolean isChecked) {
-        SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean(OFFER_STATUS_KEY, isChecked);
-        editor.apply();
-    }
-
-    // Method to setup RecyclerViews
     private void setupRecyclerViews() {
-        // Setup category RecyclerView
         recyclerViewCat.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         recyclerViewCat.setAdapter(categoryAdapter);
 
-        // Setup items RecyclerView
         recyclerViewItem.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewItem.setAdapter(itemsAdapter);
     }
 
+    private void fetchDataFromServer() {
+        String url = "http://192.168.1.33/fissa/Manager/Fetch_Cat_Prod.php";
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
 
-    // Helper method to get category names for spinner
-    private List<String> getCategoryNames() {
-        List<String> categoryNames = new ArrayList<>();
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                response -> {
+                    try {
+                        categoryList.clear();
+                        itemList.clear();
+                        Log.d("Response", String.valueOf(response));
+
+                        JSONArray categories = response.getJSONArray("categories");
+                        JSONArray products = response.getJSONArray("products");
+
+                        parseCategories(categories);
+                        parseProducts(products);
+
+                        categoryAdapter.notifyDataSetChanged();
+                        itemsAdapter.notifyDataSetChanged();
+
+                    } catch (JSONException e) {
+                        Log.e("Error parsing data", e.getMessage());
+                        Toast.makeText(ShowShopDetailsActivity.this, "Error parsing data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                },
+                error -> {
+                    Log.e("Error fetching data", error.toString());
+                    Toast.makeText(ShowShopDetailsActivity.this, "Error fetching data: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+
+        requestQueue.add(jsonObjectRequest);
+    }
+
+    private void parseCategories(JSONArray categories) throws JSONException {
+        for (int i = 0; i < categories.length(); i++) {
+            JSONObject categoryJson = categories.getJSONObject(i);
+            Category category = new Category(categoryJson.getInt("Id_Cat"), categoryJson.getString("Nom_Cat"));
+            categoryList.add(category);
+        }
+    }
+
+    private void parseProducts(JSONArray products) throws JSONException {
+        for (int j = 0; j < products.length(); j++) {
+            JSONObject productJson = products.getJSONObject(j);
+            Item item = new Item(
+                    productJson.getInt("Id_Prod"),
+                    productJson.getString("Nom_Prod"),
+                    productJson.getDouble("Prix_prod"),
+                    productJson.optString("Desc_prod", "No Description"), // Default description
+                    productJson.getInt("Id_Cat")
+            );
+            itemList.add(item);
+        }
+    }
+
+    private ArrayList<String> getCategoryNames() {
+        ArrayList<String> categoryNames = new ArrayList<>();
         for (Category category : categoryList) {
             categoryNames.add(category.getName());
         }
         return categoryNames;
     }
-
 }

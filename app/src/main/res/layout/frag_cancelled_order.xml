@@ -1,4 +1,3 @@
-
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -11,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -31,7 +31,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/customer_name_cancelled"
+                    android:id="@+id/customer_name_cancelled_order"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="أحمد علي"
@@ -42,7 +42,7 @@
 
                 <TextView
                     android:layout_marginTop="5dp"
-                    android:id="@+id/order_date_cancelled"
+                    android:id="@+id/order_date_cancelled_order"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="اليوم الساعة 12:33 ص"
@@ -58,7 +58,7 @@
                 android:gravity="start">
 
                 <TextView
-                    android:id="@+id/order_id_cancelled"
+                    android:id="@+id/order_id_cancelled_order"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="رقم الطلب: 348"
@@ -67,7 +67,7 @@
                     android:textColor="@android:color/black" />
 
                 <TextView
-                    android:id="@+id/order_total_cancelled"
+                    android:id="@+id/order_total_cancelled_order"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="الإجمالي: 42.00 دج"
@@ -79,67 +79,27 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- res/layout/order_item_ar.xml -->
-
-
-        <LinearLayout
+        <!-- Use ScrollView to show articles -->
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layoutDirection="rtl"
-            android:orientation="vertical"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:padding="8dp">
-
-            <!-- باقي التخطيط كما هو -->
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingBottom="8dp">
+                android:orientation="vertical">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/item_name_cancelled"
-                        android:layout_width="0dp"
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recycler_view_cancelled_items"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:fontFamily="@font/hacen_beirut_bight"
-                        android:text="طاكوس"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/item_quantity_cancelled"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:fontFamily="@font/hacen_beirut_bight"
-                        android:gravity="center"
-
-                        android:text="الكمية: 2"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/item_price_cancelled"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:fontFamily="@font/hacen_beirut_bight"
-                        android:gravity="end"
-
-                        android:text="24.00 دج"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-
-
+                        android:layout_marginBottom="4dp"
+                        android:nestedScrollingEnabled="false" />
 
                 <TextView
-                    android:id="@+id/order_message_cancelled"
+                    android:id="@+id/order_message_cancelled_order"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
@@ -148,18 +108,15 @@
                     android:textColor="@android:color/darker_gray"
                     android:textSize="14sp" />
             </LinearLayout>
-
-        </LinearLayout>
+        </ScrollView>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:orientation="horizontal">
-
+            android:padding="10dp">
 
             <TextView
-                android:id="@+id/order_Status_tv_cancelled"
+                android:id="@+id/order_Status_tv_cancelled_oder"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/hacen_beirut_bight"
@@ -170,9 +127,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
-
-
-
         </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

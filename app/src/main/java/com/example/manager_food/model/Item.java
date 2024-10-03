@@ -1,27 +1,33 @@
 package com.example.manager_food.model;
 
-import android.net.Uri;
-
 import java.io.Serializable;
 
 public class Item implements Serializable {
 
-    private String name;
-    private String description;
-    private double price;
-    private int imageResId; // Use int for resource IDs
-    private String category;
+    private int id; // Item ID
+    private String name; // Item name
+    private String description; // Item description
+    private double price; // Item price
+    private int category; // Assuming this is the category ID
 
     // Constructor
-    public Item(String name, String description, double price, int imageResId, String category) {
+    public Item(int id, String name, double price, String description, int category) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
-        this.imageResId = imageResId;
         this.category = category;
     }
 
     // Getters and setters
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public String getName() {
         return name;
     }
@@ -46,19 +52,11 @@ public class Item implements Serializable {
         this.price = price;
     }
 
-    public int getImageResId() {
-        return imageResId;
-    }
-
-    public void setImageResId(int imageResId) {
-        this.imageResId = imageResId;
-    }
-
-    public String getCategory() {
+    public int getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(int category) {
         this.category = category;
     }
 }

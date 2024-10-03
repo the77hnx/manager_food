@@ -25,7 +25,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/shopname"
+                android:id="@+id/shopnamemain"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -371,7 +371,7 @@
                                 android:textSize="30sp" />
 
                             <TextView
-                                android:id="@+id/item_name1"
+                                android:id="@+id/cat_num"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/hacen_beirut_bight"
@@ -436,7 +436,7 @@
                                 android:textSize="30sp" />
 
                             <TextView
-                                android:id="@+id/item_name"
+                                android:id="@+id/item_num"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/hacen_beirut_bight"
@@ -513,18 +513,18 @@
 
 
                             <TextView
-                                android:id="@+id/item_name_new3"
+                                android:id="@+id/item_name_new27"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/hacen_beirut_bight"
                                 android:gravity="center"
                                 android:paddingLeft="10dp"
-                                android:text="الطلبات المقبولة"
+                                android:text="الطلبات المقبـولة"
                                 android:textColor="@color/black"
                                 android:textSize="30sp" />
 
                             <TextView
-                                android:id="@+id/item_name3"
+                                android:id="@+id/accepted_order"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/hacen_beirut_bight"
@@ -592,7 +592,7 @@
                                 android:textSize="30sp" />
 
                             <TextView
-                                android:id="@+id/item_name2"
+                                android:id="@+id/rejected_order"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/hacen_beirut_bight"
@@ -662,7 +662,7 @@
                             android:textSize="30sp" />
 
                         <TextView
-                            android:id="@+id/item_name5"
+                            android:id="@+id/today_orders"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/hacen_beirut_bight"
@@ -728,7 +728,7 @@
                             android:textSize="30sp" />
 
                         <TextView
-                            android:id="@+id/item_name6"
+                            android:id="@+id/monthly_orders"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/hacen_beirut_bight"
@@ -802,7 +802,7 @@
                         android:textSize="30sp" />
 
                     <TextView
-                        android:id="@+id/item_name4"
+                        android:id="@+id/eval_res"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"

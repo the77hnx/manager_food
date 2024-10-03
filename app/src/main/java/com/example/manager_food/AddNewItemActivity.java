@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -21,9 +22,24 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AddNewItemActivity extends AppCompatActivity {
+    private static final String PHP_URL = "http://192.168.1.34/fissa/Manager/Add_Product.php";
 
     private static final int PICK_IMAGE_REQUEST = 1;
     private static final int PERMISSION_REQUEST_CODE = 100;
@@ -32,6 +48,8 @@ public class AddNewItemActivity extends AppCompatActivity {
     private ImageView imageView;
     private Button btnSave;
     private Uri imageUri;
+    private ArrayList<String> categoryList;
+    private ArrayList<String> categoryIds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,75 +64,34 @@ public class AddNewItemActivity extends AppCompatActivity {
         spinner = findViewById(R.id.itemCategorySpinner);
         btnSave = findViewById(R.id.btnsaveitem);
 
-        // Intent data handling
-        Intent intent = getIntent();
-        if (intent != null) {
-            String itemName = intent.getStringExtra("ITEM_NAME");
-            String itemPrice = intent.getStringExtra("ITEM_PRICE");
-            String itemDescription = intent.getStringExtra("ITEM_DESCRIPTION");
-            String itemType = intent.getStringExtra("ITEM_TYPE");
-            int imageResId = intent.getIntExtra("ITEM_IMAGE_RES_ID", 0);
+        // Fetch categories from the server
+        new FetchCategoriesTask().execute();
 
-            // Set received data to views
-            etName.setText(itemName);
-            etPrice.setText(itemPrice);
-            etDescription.setText(itemDescription);
-
-            // Set image if it was passed via resource ID
-            if (imageResId != 0) {
-                imageView.setImageResource(imageResId);
-            }
-
-            // Get the categories list from intent
-            ArrayList<String> categories = intent.getStringArrayListExtra("CATEGORIES_LIST");
-
-            if (categories != null && !categories.isEmpty()) { // Ensure list is not null and not empty
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories);
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spinner.setAdapter(adapter);
-
-                // Set spinner selection if type is available
-                if (itemType != null) {
-                    int spinnerPosition = adapter.getPosition(itemType);
-                    if (spinnerPosition >= 0) { // Check if position is valid
-                        spinner.setSelection(spinnerPosition);
-                    }
-                }
-            } else {
-                // Handle the case where categories list is null or empty
-                Log.e("AddNewItemActivity", "Categories list is null or empty.");
-                Toast.makeText(this, "Categories data is not available.", Toast.LENGTH_SHORT).show();
-                // You can initialize the spinner with default data or disable it
-                spinner.setEnabled(false);
-            }
-        }
-
-        // Set up click listeners
+        // Image picker
         imageView.setOnClickListener(v -> {
             if (checkAndRequestPermissions()) {
                 openImageChooser();
             }
         });
 
+        // Save product and send data to the server
         btnSave.setOnClickListener(v -> {
             String name = etName.getText().toString().trim();
             String price = etPrice.getText().toString().trim();
             String description = etDescription.getText().toString().trim();
-            String type = spinner.getSelectedItem().toString();
+            int selectedCategoryIndex = spinner.getSelectedItemPosition();
+            String categoryId = categoryIds.get(selectedCategoryIndex); // Get category ID
 
-            if (validateInput(name, price, description, type)) {
-                Toast.makeText(this, "done", Toast.LENGTH_SHORT).show();
-                Intent Intent = new Intent(AddNewItemActivity.this, ShowShopDetailsActivity.class);
-                startActivity(Intent);
+            if (validateInput(name, price, description)) {
+                new InsertProductTask(name, price, description, categoryId).execute();
             } else {
                 Toast.makeText(this, "Please fill in all fields correctly", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private boolean validateInput(String name, String price, String description, String type) {
-        // Basic validation example
-        if (name.isEmpty() || price.isEmpty() || description.isEmpty() || type.isEmpty()) {
+    private boolean validateInput(String name, String price, String description) {
+        if (name.isEmpty() || price.isEmpty() || description.isEmpty()) {
             return false;
         }
         try {
@@ -161,5 +138,130 @@ public class AddNewItemActivity extends AppCompatActivity {
         }
     }
 
+    // Fetch Categories from the server
+    private class FetchCategoriesTask extends AsyncTask<Void, Void, String> {
 
+        @Override
+        protected String doInBackground(Void... voids) {
+            try {
+                URL url = new URL(PHP_URL); // Update URL
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+
+                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = in.readLine()) != null) {
+                    response.append(line);
+                }
+                in.close();
+                return response.toString();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if (result != null) {
+                try {
+                    JSONArray jsonArray = new JSONArray(result);
+                    categoryList = new ArrayList<>();
+                    categoryIds = new ArrayList<>();
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject category = jsonArray.getJSONObject(i);
+                        categoryList.add(category.getString("Nom_Cat"));
+                        categoryIds.add(category.getString("Id_Cat"));
+                    }
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(AddNewItemActivity.this, android.R.layout.simple_spinner_item, categoryList);
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    spinner.setAdapter(adapter);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(AddNewItemActivity.this, "Error parsing categories.", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(AddNewItemActivity.this, "Failed to fetch categories.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    // Insert Product into the database
+    private class InsertProductTask extends AsyncTask<Void, Void, String> {
+        private String name, price, description, categoryId;
+
+        InsertProductTask(String name, String price, String description, String categoryId) {
+            this.name = name;
+            this.price = price;
+            this.description = description;
+            this.categoryId = categoryId;
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            try {
+                URL url = new URL(PHP_URL); // Update URL
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setDoOutput(true);
+
+                Map<String, String> params = new HashMap<>();
+                params.put("Nom_Prod", name);
+                params.put("Prix_Prod", price);
+                params.put("Desc_Prod", description);
+                params.put("Id_Cat", categoryId);
+
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
+                writer.write(getPostDataString(params));
+                writer.flush();
+                writer.close();
+
+                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = in.readLine()) != null) {
+                    response.append(line);
+                }
+                in.close();
+                return response.toString();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if (result != null) {
+                try {
+                    JSONObject jsonResponse = new JSONObject(result);
+                    String message = jsonResponse.getString("message");
+                    Toast.makeText(AddNewItemActivity.this, message, Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(AddNewItemActivity.this, ShowShopDetailsActivity.class);
+                    startActivity(intent);
+                    finish();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(AddNewItemActivity.this, "Error processing response.", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(AddNewItemActivity.this, "Failed to insert product.", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        private String getPostDataString(Map<String, String> params) throws UnsupportedEncodingException {
+            StringBuilder result = new StringBuilder();
+            boolean first = true;
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                if (first) first = false;
+                else result.append("&");
+
+                result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+                result.append("=");
+                result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+            }
+            return result.toString();
+        }
+    }
 }

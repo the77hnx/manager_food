@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
@@ -16,6 +17,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class AddNewCategoryActivity extends AppCompatActivity {
 
@@ -23,8 +27,9 @@ public class AddNewCategoryActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CODE = 100;
     private EditText etName;
     private ImageView imageView;
-    private Button btnSave,selectImageresButton ;
+    private Button btnSave;
     private Uri imageUri; // To store the selected image URI
+    private static final String PHP_URL = "http://192.168.1.34/fissa/Manager/Add_category.php";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +46,6 @@ public class AddNewCategoryActivity extends AppCompatActivity {
             requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
         }
 
-
         // Set up click listeners
         imageView.setOnClickListener(v -> {
             if (checkAndRequestPermissions()) {
@@ -54,12 +58,8 @@ public class AddNewCategoryActivity extends AppCompatActivity {
             String name = etName.getText().toString().trim();
 
             if (validateInput(name)) {
-                // Save the data (e.g., add to database)
-
-                Toast.makeText(this, "Category saved successfully", Toast.LENGTH_SHORT).show();
-                Intent Intent = new Intent(AddNewCategoryActivity.this, ShowShopDetailsActivity.class);
-                startActivity(Intent);
-                finish(); // Close the activity
+                // Save the data to server
+                saveCategoryToServer(name );
             } else {
                 // Show validation errors
                 etName.setError("Name cannot be empty");
@@ -92,8 +92,6 @@ public class AddNewCategoryActivity extends AppCompatActivity {
         return true;
     }
 
-
-
     private void openImageChooser() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
@@ -108,6 +106,59 @@ public class AddNewCategoryActivity extends AppCompatActivity {
             } else {
                 // Permission denied
                 Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void saveCategoryToServer(String name ) {
+        new SaveCategoryTask(name ).execute();
+    }
+
+    private class SaveCategoryTask extends AsyncTask<Void, Void, String> {
+        private String name;
+
+        SaveCategoryTask(String name ) {
+            this.name = name;
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            try {
+                URL url = new URL(PHP_URL);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setDoOutput(true);
+
+                // Create post data
+                String postData = "name=" + name;
+                // Append imageUri if needed in the future
+                // postData += "&imageUri=" + imageUri.toString();
+
+                OutputStream os = connection.getOutputStream();
+                os.write(postData.getBytes());
+                os.flush();
+                os.close();
+
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    return "Success";
+                } else {
+                    return "Failed";
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "Exception";
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Toast.makeText(AddNewCategoryActivity.this, "Category saved: " + result, Toast.LENGTH_SHORT).show();
+            if ("Success".equals(result)) {
+                Intent intent = new Intent(AddNewCategoryActivity.this, ShowShopDetailsActivity.class);
+                startActivity(intent);
+                finish(); // Close the activity
             }
         }
     }

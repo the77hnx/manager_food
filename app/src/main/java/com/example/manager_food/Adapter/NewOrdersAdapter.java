@@ -7,11 +7,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.manager_food.R;
 import com.example.manager_food.model.OrderItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class NewOrdersAdapter extends RecyclerView.Adapter<NewOrdersAdapter.NewOrderViewHolder> {
@@ -20,21 +22,25 @@ public class NewOrdersAdapter extends RecyclerView.Adapter<NewOrdersAdapter.NewO
     private final List<OrderItem> orderList;
     private final OnOrderClickListener onOrderClickListener;
 
-    public interface OnOrderClickListener {
-        void onOrderClick(OrderItem order);
-    }
+    private static final String NEW_STATUS = "New";
+    private static final int NEW_STATUS_ID = 1; // Assuming 1 corresponds to "New"
 
     public NewOrdersAdapter(Context context, List<OrderItem> orderList, OnOrderClickListener onOrderClickListener) {
         this.context = context;
-        this.orderList = orderList;
         this.onOrderClickListener = onOrderClickListener;
+        this.orderList = new ArrayList<>();
+        for (OrderItem order : orderList) {
+            if (NEW_STATUS.equals(order.getOrderStatus()) || order.getIdStatutCommande() == NEW_STATUS_ID) {
+                this.orderList.add(order);
+            }
+        }
     }
 
     @NonNull
     @Override
     public NewOrderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.frag_new_order, parent, false);
+        View view = inflater.inflate(R.layout.frag_cancelled_order, parent, false);
         return new NewOrderViewHolder(view);
     }
 
@@ -50,37 +56,40 @@ public class NewOrdersAdapter extends RecyclerView.Adapter<NewOrdersAdapter.NewO
         return orderList.size();
     }
 
+    public interface OnOrderClickListener {
+        void onOrderClick(OrderItem order);
+    }
+
     static class NewOrderViewHolder extends RecyclerView.ViewHolder {
         private final TextView customerName;
         private final TextView orderDate;
         private final TextView orderId;
         private final TextView orderTotal;
-        private final TextView itemName;
-        private final TextView itemQuantity;
-        private final TextView itemPrice;
         private final TextView orderMessage;
+        private final TextView orderStatus;
+        private final RecyclerView itemsRecyclerView;
 
         public NewOrderViewHolder(View itemView) {
             super(itemView);
-            customerName = itemView.findViewById(R.id.customer_name_cancelled);
-            orderDate = itemView.findViewById(R.id.order_date_cancelled);
-            orderId = itemView.findViewById(R.id.order_id_cancelled);
-            orderTotal = itemView.findViewById(R.id.order_total_cancelled);
-            itemName = itemView.findViewById(R.id.item_name_cancelled);
-            itemQuantity = itemView.findViewById(R.id.item_quantity_cancelled);
-            itemPrice = itemView.findViewById(R.id.item_price_cancelled);
-            orderMessage = itemView.findViewById(R.id.order_message_cancelled);
+            customerName = itemView.findViewById(R.id.customer_name_cancelled_order);
+            orderDate = itemView.findViewById(R.id.order_date_cancelled_order);
+            orderId = itemView.findViewById(R.id.order_id_cancelled_order);
+            orderStatus = itemView.findViewById(R.id.order_Status_tv_cancelled_oder);
+            orderTotal = itemView.findViewById(R.id.order_total_cancelled_order);
+            orderMessage = itemView.findViewById(R.id.order_message_cancelled_order);
+            itemsRecyclerView = itemView.findViewById(R.id.recycler_view_cancelled_items);
         }
 
         public void bind(OrderItem order) {
             customerName.setText(order.getCustomerName());
             orderDate.setText(order.getOrderDate());
             orderId.setText(order.getOrderId());
-            orderTotal.setText(order.getOrderTotal());
-            itemName.setText(order.getItemName());
-            itemQuantity.setText(order.getItemQuantity());
-            itemPrice.setText(order.getItemPrice());
+            orderTotal.setText(String.format("%s %s", order.getOrderTotal(), itemView.getContext()));
             orderMessage.setText(order.getOrderMessage());
+            orderStatus.setText(order.getOrderStatus());
+            OrderItemsAdapter itemsAdapter = new OrderItemsAdapter(order.getItems());
+            itemsRecyclerView.setAdapter(itemsAdapter);
+            itemsRecyclerView.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
         }
     }
 }
