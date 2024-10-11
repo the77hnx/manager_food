@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.manager_food.R;
-import com.example.manager_food.model.OrderItem;
 import com.example.manager_food.model.OrderItems;
 
 import java.util.List;
@@ -55,7 +54,8 @@ public class OrderItemsAdapter extends RecyclerView.Adapter<OrderItemsAdapter.Or
 
         public void bind(OrderItems orderItems) {
             itemName.setText(orderItems.getItemName());
-            itemQuantity.setText(orderItems.getItemQuantity());
+            String quantity = String.valueOf(orderItems.getItemQuantity());
+            itemQuantity.setText(quantity);
             itemPrice.setText(String.format("%.2f", orderItems.getItemPrice())); // Format double to string
         }
     }

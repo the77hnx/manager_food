@@ -8,6 +8,8 @@ import java.util.List;
 public class OrderItem implements Parcelable {
     private String customerName;
     private String orderDate;
+    private String orderTime;
+
     private String orderId;
     private double orderTotal;
     private String orderMessage;
@@ -15,9 +17,10 @@ public class OrderItem implements Parcelable {
     private int idStatutCommande;
     private List<OrderItems> items; // New field for items
 
-    public OrderItem(String customerName, String orderDate, String orderId, double orderTotal,
+    public OrderItem(String customerName, String orderDate, String orderTime, String orderId, double orderTotal,
                      String orderMessage, String orderStatus, int idStatutCommande, List<OrderItems> items) {
         this.customerName = customerName;
+        this.orderTime = orderTime;
         this.orderDate = orderDate;
         this.orderId = orderId;
         this.orderTotal = orderTotal;
@@ -30,6 +33,7 @@ public class OrderItem implements Parcelable {
     protected OrderItem(Parcel in) {
         customerName = in.readString();
         orderDate = in.readString();
+        orderTime = in.readString();
         orderId = in.readString();
         orderTotal = in.readDouble();
         orderMessage = in.readString();
@@ -59,6 +63,7 @@ public class OrderItem implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(customerName);
         dest.writeString(orderDate);
+        dest.writeString(orderTime);
         dest.writeString(orderId);
         dest.writeDouble(orderTotal);
         dest.writeString(orderMessage);
@@ -74,6 +79,9 @@ public class OrderItem implements Parcelable {
 
     public String getOrderDate() {
         return orderDate;
+    }
+    public String getOrderTime() {
+        return orderTime;
     }
 
     public String getOrderId() {

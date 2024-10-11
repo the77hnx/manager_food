@@ -26,6 +26,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".InDeliveryOrderActivity"
+            android:exported="false" />
+        <activity
             android:name=".DetailsOrderActivity"
             android:exported="false" />
 
@@ -40,10 +43,10 @@
         </provider>
 
         <activity
-            android:name=".OnloadingOrderActivity"
+            android:name=".AwaitingDeliveryOrderActivity"
             android:exported="false" />
         <activity
-            android:name=".ShowShopDetailsActivity"
+            android:name=".OurOrdersActivity"
             android:exported="false" />
         <activity
             android:name=".AddNewCategoryActivity"
@@ -64,7 +67,7 @@
             android:name=".NewOrderActivity"
             android:exported="false" />
         <activity
-            android:name=".OngoingOrderActivity"
+            android:name=".InPreperationOrderActivity"
             android:exported="false" />
         <activity
             android:name=".SpecialOffersActivity"
@@ -87,7 +90,7 @@
             android:name=".EditProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".OurOrdersActivity"
+            android:name=".ShowShopDetailsActivity"
             android:exported="true"
             android:theme="@style/AppTheme"> <!-- Set android:exported="true" -->
             <intent-filter>

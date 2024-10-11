@@ -5,7 +5,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,7 +22,7 @@ import java.util.List;
 public class NewOrdersAdapter extends RecyclerView.Adapter<NewOrdersAdapter.NewOrderViewHolder> {
 
     private final Context context;
-    private final List<OrderItem> orderList;
+    private List<OrderItem> orderList; // Make this mutable
     private final OnOrderClickListener onOrderClickListener;
 
     private static final String NEW_STATUS = "New";
@@ -29,11 +32,7 @@ public class NewOrdersAdapter extends RecyclerView.Adapter<NewOrdersAdapter.NewO
         this.context = context;
         this.onOrderClickListener = onOrderClickListener;
         this.orderList = new ArrayList<>();
-        for (OrderItem order : orderList) {
-            if (NEW_STATUS.equals(order.getOrderStatus()) || order.getIdStatutCommande() == NEW_STATUS_ID) {
-                this.orderList.add(order);
-            }
-        }
+        setOrderList(orderList); // Initialize the order list
     }
 
     @NonNull
@@ -54,6 +53,17 @@ public class NewOrdersAdapter extends RecyclerView.Adapter<NewOrdersAdapter.NewO
     @Override
     public int getItemCount() {
         return orderList.size();
+    }
+
+    public void setOrderList(List<OrderItem> newOrderList) {
+        orderList.clear(); // Clear existing items
+        for (OrderItem order : newOrderList) {
+            // Filter based on status
+            if (NEW_STATUS.equals(order.getOrderStatus()) || order.getIdStatutCommande() == NEW_STATUS_ID) {
+                orderList.add(order); // Add only new orders
+            }
+        }
+        notifyDataSetChanged(); // Notify the adapter of data change
     }
 
     public interface OnOrderClickListener {
@@ -81,12 +91,12 @@ public class NewOrdersAdapter extends RecyclerView.Adapter<NewOrdersAdapter.NewO
         }
 
         public void bind(OrderItem order) {
-            customerName.setText(order.getCustomerName());
-            orderDate.setText(order.getOrderDate());
-            orderId.setText(order.getOrderId());
-            orderTotal.setText(String.format("%s %s", order.getOrderTotal(), itemView.getContext()));
+            customerName.setText("اسم الزبون : " + order.getCustomerName());
+            orderDate.setText( "تاريخ الطلب : " + order.getOrderDate());
+            orderId.setText("ايدي الطلب : " + order.getOrderId());
+            orderTotal.setText(String.format("السعر الاجمالي : %s", order.getOrderTotal(), itemView.getContext()) + "دج"); // Assuming you have a currency symbol in resources
             orderMessage.setText(order.getOrderMessage());
-            orderStatus.setText(order.getOrderStatus());
+            orderStatus.setText("حالة الطلب : " + order.getOrderStatus());
             OrderItemsAdapter itemsAdapter = new OrderItemsAdapter(order.getItems());
             itemsRecyclerView.setAdapter(itemsAdapter);
             itemsRecyclerView.setLayoutManager(new LinearLayoutManager(itemView.getContext()));

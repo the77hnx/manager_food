@@ -18,7 +18,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:visibility="gone" />
-
+        <TextView
+            android:id="@+id/cat_text2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="in delivery"/>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewInDelivery"
             android:layout_width="match_parent"

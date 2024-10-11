@@ -3,96 +3,257 @@ package com.example.manager_food;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.manager_food.Adapter.OrderItemsAdapter;
+import com.example.manager_food.model.OrderItems;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class NewOrderActivity extends AppCompatActivity {
 
-    private TextView customerName, orderDate, orderTotal, phoneNumber, email, address, orderMessage, orderTotalAmount, orderStatus;
-    private Button callBtn, emailBtn, showAddressBtn, acceptOrderBtn, cancelOrderBtn;
-    private boolean isOrderAccepted = false; // Track the acceptance state
-
+    // Declare TextViews at the class level
+    private TextView customerNameTextView;
+    private TextView customerPhoneTextView;
+    private TextView customerEmailTextView;
+    private TextView customerAddressTextView;
+    private TextView MessgaeMagasinTextView;
+    private TextView OrderPriceTextView;
+    private TextView DeliveryPriceTextView;
+    private TextView AllPriceTextView;
+    private TextView OrderDateTextView;
+    private TextView OrderIDTextView;
+    private TextView OrderStatusTextView;
+    private Button AcceptOrder , CancelOrder;
+    private RecyclerView recyclerView;
+    private OrderItemsAdapter orderItemsAdapter;
+    private List<OrderItems> orderItemsList; // Change to List of OrderItems
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_new_order);
 
-        // Initialize UI elements
-        customerName = findViewById(R.id.customer_name);
-        orderDate = findViewById(R.id.order_date);
-        orderTotal = findViewById(R.id.order_total);
-        phoneNumber = findViewById(R.id.numbertv);
-        email = findViewById(R.id.emailtv);
-        address = findViewById(R.id.addresstv);
-        orderMessage = findViewById(R.id.order_message);
-        orderTotalAmount = findViewById(R.id.totalWithDeliveryTextView);
-        orderStatus = findViewById(R.id.order_status); // TextView to display order status
-
-        callBtn = findViewById(R.id.callbtn);
-        emailBtn = findViewById(R.id.emailbtn);
-        showAddressBtn = findViewById(R.id.showaddressbtn);
-        acceptOrderBtn = findViewById(R.id.accept_order);
-        cancelOrderBtn = findViewById(R.id.cancel_order);
-
         // Extract order details from Intent
-        Intent intent = getIntent();
-        if (intent != null) {
-            customerName.setText(intent.getStringExtra("CUSTOMER_NAME"));
-            orderDate.setText(intent.getStringExtra("ORDER_DATE"));
-            orderTotal.setText(intent.getStringExtra("ORDER_TOTAL"));
-            phoneNumber.setText(intent.getStringExtra("PHONE_NUMBER"));
-            email.setText(intent.getStringExtra("EMAIL"));
-            address.setText(intent.getStringExtra("ADDRESS"));
-            orderMessage.setText(intent.getStringExtra("ORDER_MESSAGE"));
-            orderTotalAmount.setText(intent.getStringExtra("ORDER_TOTAL_AMOUNT"));
-            orderStatus.setText(intent.getStringExtra("ORDER_STATUS"));
-        }
+        String orderId = getIntent().getStringExtra("orderId");
+        Log.d("NewOrderActivity", "Received orderId: " + orderId);
 
-        // Set button click listeners
-        callBtn.setOnClickListener(v -> {
-            // Handle call button click
-        });
+        // Initialize TextViews
+        customerNameTextView = findViewById(R.id.customer_name_new_order_det);
+        customerPhoneTextView = findViewById(R.id.numbertv_new_order_det);
+        customerEmailTextView = findViewById(R.id.emailtv_new_order_det);
+        customerAddressTextView = findViewById(R.id.addresstv_new_order_det);
+        MessgaeMagasinTextView = findViewById(R.id.order_message_new_order_det);
+        OrderPriceTextView = findViewById(R.id.totalTextView_new_order_det);
+        DeliveryPriceTextView = findViewById(R.id.deliveryPriceTextView_new_order_det);
+        AllPriceTextView = findViewById(R.id.totalWithDeliveryTextView_new_order_det);
+        OrderDateTextView = findViewById(R.id.order_date_new_order_det);
+        OrderIDTextView = findViewById(R.id.order_total_new_order_det);
+        OrderStatusTextView = findViewById(R.id.order_status_new_order_det);
+        AcceptOrder = findViewById(R.id.accept_order_new_det);
+        CancelOrder = findViewById(R.id.cancel_order_new_det);
+        // Initialize the RecyclerView
+        recyclerView = findViewById(R.id.recycler_view_new_items);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        emailBtn.setOnClickListener(v -> {
-            // Handle email button click
-        });
+        // Initialize the items list and adapter
+        orderItemsList = new ArrayList<>();
+        orderItemsAdapter = new OrderItemsAdapter(orderItemsList);
+        recyclerView.setAdapter(orderItemsAdapter);
 
-        showAddressBtn.setOnClickListener(v -> {
-            // Handle show address button click
-        });
+        // Fetch order details from the server
+        sendOrderIdToPHP(orderId);
+        getOrderDetailsFromPHP(orderId);
 
-        acceptOrderBtn.setOnClickListener(v -> {
-            if (!isOrderAccepted) {
-                // Change button text and status
-                acceptOrderBtn.setText("تم التحضير");
-                orderStatus.setText("قيد التحضير");
-                orderStatus.setTextColor(Color.parseColor("#FF6347")); // Tomato red
-                acceptOrderBtn.setBackgroundColor(Color.parseColor("#FF6347")); // Tomato red
-                isOrderAccepted = true; // Update state to accepted
-            } else {
-                // Change button text and status
-                acceptOrderBtn.setText("تم التوصيل");
-                orderStatus.setText("في انتظار التسليم");
-                orderStatus.setTextColor(Color.parseColor("#FF6347")); // Tomato red
-                acceptOrderBtn.setBackgroundColor(Color.GRAY);
-                cancelOrderBtn.setBackgroundColor(Color.GRAY);
-                acceptOrderBtn.setClickable(false);
-                cancelOrderBtn.setClickable(false);
-                acceptOrderBtn.setEnabled(false);
-                cancelOrderBtn.setEnabled(false);
-                isOrderAccepted = false; // Update state to not accepted
+        AcceptOrder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Call function to update order status to 2 (Accepted)
+                updateOrderStatus(orderId, 2);
             }
         });
 
-        cancelOrderBtn.setOnClickListener(v -> {
-            // Handle cancel order button click
-            orderStatus.setText("ملغية");
-            orderStatus.setTextColor(Color.RED); // Red
-            acceptOrderBtn.setVisibility(View.GONE);
-            cancelOrderBtn.setVisibility(View.GONE);
+        CancelOrder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Call function to update order status to 5 (Cancelled)
+                updateOrderStatus(orderId, 5);
+            }
         });
+
+    }
+
+    private void sendOrderIdToPHP(String orderId) {
+        String url = "http://192.168.1.33/fissa/Manager/Details_Order.php?orderId=" + orderId;
+
+        // Create a request queue
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        // Create a StringRequest to send the orderId
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Log or handle the server response if needed
+                        Log.d("PHP Response", response);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // Handle error response
+                Log.e("Volley Error", error.toString());
+            }
+        });
+
+        // Add the request to the queue
+        requestQueue.add(stringRequest);
+    }
+    private void getOrderDetailsFromPHP(String orderId) {
+        String url = "http://192.168.1.33/fissa/Manager/Details_Order.php?orderId=" + orderId;
+
+        // Create a request queue
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        // Create a JSON request to get order details
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            // Extract order details from the JSON response
+                            JSONObject order = response.getJSONObject("order");
+                            String orderPrice = order.getString("orderPrice");
+                            String deliveryPrice = order.getString("deliveryPrice");
+                            String orderDate = order.getString("orderDate");
+                            String restaurantMessage = order.getString("restaurantMessage");
+
+                            // Get customer details
+                            JSONObject customer = order.getJSONObject("customer");
+                            String customerName = customer.getString("customerName");
+                            String customerNumber = customer.getString("customerNumber");
+                            String customerEmail = customer.getString("customerEmail");
+                            String customerCoordinates = customer.getString("customerCoordinates");
+
+                            // Get order status
+                            String orderStatus = order.getString("orderStatus");
+
+
+                            customerNameTextView.setText(customerName);
+                            customerPhoneTextView.setText(customerNumber);
+                            customerEmailTextView.setText(customerEmail);
+                            customerAddressTextView.setText(customerCoordinates);
+                            MessgaeMagasinTextView.setText(restaurantMessage);
+                            OrderPriceTextView.setText( " سعر الطلب : " + orderPrice);
+                            DeliveryPriceTextView.setText( " سعر التوصيل : " + deliveryPrice);
+                            AllPriceTextView.setText(String.valueOf( " السعر الكلي : " + (orderPrice + deliveryPrice) ));
+                            OrderDateTextView.setText( " تاريخ الطلب : " + orderDate);
+                            OrderIDTextView.setText( " رقم الطلب : " + orderId);
+                            OrderStatusTextView.setText( " حالة الطلب : " + orderStatus);
+
+
+                            // Get order items
+                            JSONArray items = order.getJSONArray("items");
+                            for (int i = 0; i < items.length(); i++) {
+                                JSONObject item = items.getJSONObject(i);
+                                String itemName = item.getString("itemName");
+                                int itemQuantity = item.getInt("itemQuantity");
+                                double itemPrice = item.getDouble("itemPrice");
+
+                                // Create OrderItems object and add to the list
+                                OrderItems orderItem = new OrderItems(itemName, itemPrice, itemQuantity);
+                                orderItemsList.add(orderItem);  // Add each item to the list
+                                // You can now use these details to display in your app
+                                Log.d("Order Item", "Name: " + itemName + ", Quantity: " + itemQuantity + ", Price: " + itemPrice);
+                            }
+
+                            // Notify the adapter that the data has changed
+                            orderItemsAdapter.notifyDataSetChanged();
+                            // Display other details as needed
+                            Log.d("Order Details", "Price: " + orderPrice + ", Delivery Price: " + deliveryPrice);
+                            Log.d("Customer Details", "Name: " + customerName + ", Email: " + customerEmail);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Log.e("Eroor", e.getMessage());
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // Handle error response
+                Log.e("Volley Error", error.toString());
+            }
+        });
+
+        // Add the request to the queue
+        requestQueue.add(jsonObjectRequest);
+    }
+
+    // Function to update order status
+    private void updateOrderStatus(String orderId, int newStatus) {
+        String url = "http://192.168.1.33/fissa/Manager/Update_Status_cmd.php";
+
+        // Create a request queue
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        // Create a StringRequest to send the orderId and newStatus via POST
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Log or handle the server response
+                        Log.d("PHP Response", response);
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response);
+                            if (jsonResponse.has("message")) {
+                                Log.d("Order Update", "Success: " + jsonResponse.getString("message"));
+                                Intent intent = new Intent(NewOrderActivity.this , OurOrdersActivity.class);
+                                startActivity(intent);
+                            } else if (jsonResponse.has("error")) {
+                                Log.e("Order Update", "Error: " + jsonResponse.getString("error"));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // Handle error response
+                Log.e("Volley Error", error.toString());
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() {
+                // Send the orderId and newStatus as POST parameters
+                Map<String, String> params = new HashMap<>();
+                params.put("orderId", orderId);
+                params.put("status", String.valueOf(newStatus));
+                return params;
+            }
+        };
+
+        // Add the request to the queue
+        requestQueue.add(stringRequest);
     }
 }

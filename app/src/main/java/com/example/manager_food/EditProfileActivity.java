@@ -6,49 +6,45 @@ import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.Location;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.Priority;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
-
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class EditProfileActivity extends AppCompatActivity {
 
-    private TextView displayTextView, descriptionTextView, addressTextView, gpsTextView;
-    private EditText etNumber, etName, addressEditText;
-    private Button editBtn1, editBtn2, editBtn3, btnPhoneLogin;
-    private boolean isEditingName = false, isEditingDescription = false, isEditingAddress = false;
+    private TextView displayTextView, descriptionTextView, addressTextView, gpsTextView, telrestv, passwordrestv, repasswordrestv;
+    private EditText etNumber, etName, addressEditText, etDescription, etpasswordedit, etrepasswordedit;
+    private Button editBtn1, editBtn2, editBtn3,editBtn4, editBtn5, editBtn6, btnPhoneLogin;
+    private boolean isEditingName = false, isEditingDescription = false, isEditingAddress = false, isEditingpassword = false, isEditingrepassword = false, isEditingtel = false;
     private FusedLocationProviderClient fusedLocationClient;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private String currentLocation;
@@ -62,12 +58,21 @@ public class EditProfileActivity extends AppCompatActivity {
         displayTextView = findViewById(R.id.displayTextView);
         descriptionTextView = findViewById(R.id.descriptiontv);
         addressTextView = findViewById(R.id.addresstvwritten);
-        etNumber = findViewById(R.id.etnumberedit);
-        etName = findViewById(R.id.etNameedit);
-        addressEditText = findViewById(R.id.addresset);
+        telrestv = findViewById(R.id.telrestv);
+        passwordrestv = findViewById(R.id.etpasswordedittv);
+        repasswordrestv = findViewById(R.id.repasswordrestv);
+        etNumber = findViewById(R.id.etNumber);
+        etName = findViewById(R.id.etNameeditpage);
+        addressEditText = findViewById(R.id.addressEditText);
+        etDescription = findViewById(R.id.etDescription);
+        etpasswordedit = findViewById(R.id.etpasswordedit);
+        etrepasswordedit = findViewById(R.id.etrepasswordedit);
         editBtn1 = findViewById(R.id.editbtn1);
         editBtn2 = findViewById(R.id.editbtn2);
         editBtn3 = findViewById(R.id.editbtn3);
+        editBtn4 = findViewById(R.id.editbtn4);
+        editBtn5 = findViewById(R.id.editbtn5);
+        editBtn6 = findViewById(R.id.editbtn6);
         btnPhoneLogin = findViewById(R.id.saveeditbtn);
         gpsTextView = findViewById(R.id.editGPStext);
 
@@ -99,33 +104,49 @@ public class EditProfileActivity extends AppCompatActivity {
                 return false;
             }
         });
-
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
         // Set click listeners for the buttons
         editBtn1.setOnClickListener(v -> {
             toggleEditText(etNumber, displayTextView, editBtn1, isEditingName);
             isEditingName = !isEditingName;
         });
-
         editBtn2.setOnClickListener(v -> {
             toggleEditText(etName, descriptionTextView, editBtn2, isEditingDescription);
             isEditingDescription = !isEditingDescription;
         });
-
         editBtn3.setOnClickListener(v -> {
             toggleEditText(addressEditText, addressTextView, editBtn3, isEditingAddress);
             isEditingAddress = !isEditingAddress;
         });
-
+        editBtn4.setOnClickListener(v -> {
+            toggleEditText(etDescription, telrestv, editBtn4, isEditingtel);
+            isEditingAddress = !isEditingAddress;
+        });
+        editBtn5.setOnClickListener(v -> {
+            toggleEditText(etpasswordedit, passwordrestv, editBtn5, isEditingpassword);
+            isEditingAddress = !isEditingAddress;
+        });
+        editBtn6.setOnClickListener(v -> {
+            toggleEditText(etrepasswordedit, repasswordrestv, editBtn6, isEditingrepassword);
+            isEditingAddress = !isEditingAddress;
+        });
         // Set click listener for the save button
         btnPhoneLogin.setOnClickListener(v -> {
-            saveAllEdits();
-            // Navigate to the menu page
-            Intent intent = new Intent(EditProfileActivity.this, LoginActivity.class);
-            startActivity(intent);
-        });
+            String password = etpasswordedit.getText().toString();
+            String rePassword = etrepasswordedit.getText().toString();
 
+            if (TextUtils.isEmpty(password) || TextUtils.isEmpty(rePassword)) {
+                Toast.makeText(EditProfileActivity.this, "Please enter both password fields.", Toast.LENGTH_SHORT).show();
+            } else if (!password.equals(rePassword)) {
+                Toast.makeText(EditProfileActivity.this, "Passwords do not match. Please re-enter.", Toast.LENGTH_SHORT).show();
+            } else {
+                // Save all edits if passwords match
+                saveAllEdits();
+                // Navigate to the menu page
+                Intent intent = new Intent(EditProfileActivity.this, LoginActivity.class);
+                startActivity(intent);
+            }
+        });
         gpsTextView.setOnClickListener(v -> checkLocationSettings());
     }
 
@@ -220,7 +241,6 @@ public class EditProfileActivity extends AppCompatActivity {
             button.setBackground(ContextCompat.getDrawable(this, R.drawable.ic_edit));
         } else {
             // Switch to EditText
-            editText.setText(textView.getText());
             textView.setVisibility(View.GONE);
             editText.setVisibility(View.VISIBLE);
             button.setBackground(ContextCompat.getDrawable(this, R.drawable.ic_done));
@@ -228,31 +248,56 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     private void saveAllEdits() {
-        if (etNumber.getVisibility() == View.VISIBLE) {
-            String newNumber = etNumber.getText().toString();
-            if (!TextUtils.isEmpty(newNumber)) {
-                displayTextView.setText(newNumber);
-            }
-            etNumber.setVisibility(View.GONE);
-            displayTextView.setVisibility(View.VISIBLE);
-        }
+        // Prepare data to send
+        String restaurantName = etName.getText().toString();
+        String description = etDescription.getText().toString();
+        String phoneNumber = etNumber.getText().toString();
+        String password = etpasswordedit.getText().toString();
+        String address = addressEditText.getText().toString();
+        String coordinates = gpsTextView.getText().toString(); // Assuming current GPS address
 
-        if (etName.getVisibility() == View.VISIBLE) {
-            String newName = etName.getText().toString();
-            if (!TextUtils.isEmpty(newName)) {
-                descriptionTextView.setText(newName);
-            }
-            etName.setVisibility(View.GONE);
-            descriptionTextView.setVisibility(View.VISIBLE);
-        }
 
-        if (addressEditText.getVisibility() == View.VISIBLE) {
-            String newAddress = addressEditText.getText().toString();
-            if (!TextUtils.isEmpty(newAddress)) {
-                addressTextView.setText(newAddress);
+        // Log the values before sending the request
+        Log.d("EditProfileActivity", "Restaurant Name: " + restaurantName);
+        Log.d("EditProfileActivity", "Description: " + description);
+        Log.d("EditProfileActivity", "Phone Number: " + phoneNumber);
+        Log.d("EditProfileActivity", "Password: " + password); // Be cautious with logging sensitive data
+        Log.d("EditProfileActivity", "Address: " + address);
+        Log.d("EditProfileActivity", "Coordinates: " + coordinates);
+
+        // Perform network request here
+        String url = "http://192.168.1.33/fissa/Manager/Update_Profile.php"; // Update with your PHP endpoint
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                response -> {
+                    // Handle response
+                    Log.d("EditProfileActivity", "Response: " + response); // Log the response
+                    Toast.makeText(EditProfileActivity.this, response, Toast.LENGTH_SHORT).show(); // Show server message
+                },
+                error -> {
+                    // Handle error
+                    Log.e("EditProfileActivity", "Error updating profile: " + error.getMessage()); // Log the error message
+                    Toast.makeText(EditProfileActivity.this, "Error updating profile", Toast.LENGTH_SHORT).show();
+                }) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("Nom_magasin", restaurantName);
+                params.put("Descriptif_magasin", description);
+                params.put("Tel_magasin", phoneNumber);
+                params.put("Password", password);
+                params.put("Address_magasin", address);
+                params.put("Coordonnes", coordinates);
+                return params;
             }
-            addressEditText.setVisibility(View.GONE);
-            addressTextView.setVisibility(View.VISIBLE);
-        }
+        };
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        // Add request to queue
+        Volley.newRequestQueue(this).add(stringRequest);
     }
+
+
 }

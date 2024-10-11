@@ -12,6 +12,12 @@
         android:layout_height="match_parent"
         android:paddingBottom="120dp"
         android:orientation="vertical">
+        <TextView
+            android:id="@+id/cat_text1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="in preparation"/>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewInPreparation"
             android:layout_width="match_parent"

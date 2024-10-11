@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -35,19 +36,27 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ShowShopDetailsActivity extends AppCompatActivity {
     private static final String PREFS_NAME = "MyPrefs";
     private static final String OFFER_STATUS_KEY = "offer_status";
+    private static final String updateStoreStatusURL = "http://192.168.1.33/fissa/Manager/Status_Magasin.php";
+    private static final String fetchStoreDataURL = "http://192.168.1.33/fissa/Manager/Fetch_Magasin_Information.php";
 
     private RecyclerView recyclerViewCat;
     private RecyclerView recyclerViewItem;
     private CategoryAdapter categoryAdapter;
     private ItemsAdapter itemsAdapter;
     private Switch offerSwitch;
-    private TextView shopNameTextView, offerStatusTextView;
+    private TextView shopNameTextView, offerStatusTextView, status_det;
     private Button addCategoryButton, addProductButton;
 
     private List<Item> itemList;
@@ -66,7 +75,7 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
         offerStatusTextView = findViewById(R.id.status_det);
         addCategoryButton = findViewById(R.id.addcategory);
         addProductButton = findViewById(R.id.addproduct);
-
+        status_det = findViewById(R.id.status_det);
         // Load the saved offer switch state
         SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         boolean offerStatus = preferences.getBoolean(OFFER_STATUS_KEY, false);
@@ -224,5 +233,113 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
             categoryNames.add(category.getName());
         }
         return categoryNames;
+    }
+
+
+
+    private void showStoreStatus() {
+        new AsyncTask<Void, Void, String>() {
+            @Override
+            protected String doInBackground(Void... voids) {
+                try {
+                    URL url = new URL(fetchStoreDataURL); // Use the URL to fetch the store data
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestMethod("GET");
+                    connection.setDoInput(true);
+
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    StringBuilder result = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        result.append(line);
+                    }
+                    reader.close();
+                    return result.toString();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(String result) {
+                if (result != null) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(result);
+                        // Fetch store status
+                        String status = jsonObject.optString("Statut_magasin");
+                        updateStoreStatusUI(status); // Call method to update the UI
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Toast.makeText(ShowShopDetailsActivity.this, "Error parsing data", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(ShowShopDetailsActivity.this, "Failed to fetch data", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }.execute();
+    }
+
+    private void updateStoreStatus(boolean isOpen) {
+        new AsyncTask<Boolean, Void, Boolean>() {
+            @Override
+            protected Boolean doInBackground(Boolean... params) {
+                try {
+                    URL url = new URL(updateStoreStatusURL); // URL to update the store status
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestMethod("POST");
+                    connection.setDoOutput(true);
+
+                    String data = "statut_magasin=" + (params[0] ? "مفتوح" : "مغلق");
+
+                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
+                    writer.write(data);
+                    writer.flush();
+                    writer.close();
+
+                    int responseCode = connection.getResponseCode();
+
+                    Log.d("Update Store Status", "Sending status: " + (params[0] ? "مفتوح" : "مغلق"));
+                    return responseCode == HttpURLConnection.HTTP_OK;
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.e("Error message", e.getMessage());
+                    return false;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(Boolean success) {
+                if (success) {
+                    Toast.makeText(ShowShopDetailsActivity.this, "Store status updated", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(ShowShopDetailsActivity.this, "Failed to update status", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }.execute(isOpen);
+    }
+
+
+    private void updateStoreStatusUI(String status) {
+        // Update the UI based on the store status
+        if ("مفتوح".equals(status)) {
+            offerSwitch.setChecked(true);
+            updateBasketText(true); // Update basket text to "مفتوح"
+        } else {
+            offerSwitch.setChecked(false);
+            updateBasketText(false); // Update basket text to "مغلق"
+        }
+    }
+
+    // Method to update the basket TextView based on the Switch state
+    private void updateBasketText(boolean isChecked) {
+        if (isChecked) {
+            status_det.setText("مفتوح");
+            status_det.setTextColor(getResources().getColor(R.color.green));
+        } else {
+            status_det.setText("مغلق");
+            status_det.setTextColor(getResources().getColor(R.color.red));
+        }
     }
 }

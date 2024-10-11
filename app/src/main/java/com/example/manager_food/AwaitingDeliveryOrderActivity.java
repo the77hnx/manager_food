@@ -27,7 +27,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CancelledOrderActivity extends AppCompatActivity {
+public class AwaitingDeliveryOrderActivity extends AppCompatActivity {
 
     // Declare TextViews at the class level
     private TextView customerNameTextView;
@@ -48,31 +48,34 @@ public class CancelledOrderActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_cancelled_order);
+        setContentView(R.layout.activity_awaiting_delivery_order_order);
 
         // Extract order details from Intent
         String orderId = getIntent().getStringExtra("orderId");
         Log.d("NewOrderActivity", "Received orderId: " + orderId);
-         customerNameTextView = findViewById(R.id.customer_name_cancelled_order_det);
-         customerPhoneTextView = findViewById(R.id.numbertv_cancelled_order_det);
-         customerEmailTextView = findViewById(R.id.emailtv_cancelled_order_det);
-         customerAddressTextView = findViewById(R.id.addresstv_cancelled_order_det);
-         MessgaeMagasinTextView = findViewById(R.id.order_message_cancelled_order_det);
-         OrderPriceTextView = findViewById(R.id.totalTextView_cancelled_order_det);
-         DeliveryPriceTextView = findViewById(R.id.deliveryPriceTextView_cancelled_order_det);
-         AllPriceTextView = findViewById(R.id.totalWithDeliveryTextView_cancelled_order_det);
-         OrderDateTextView = findViewById(R.id.order_date_cancelled_order_det);
-         OrderIDTextView = findViewById(R.id.order_total_cancelled_order_det);
-         OrderStatusTextView = findViewById(R.id.order_status_cancelled_order_det);
+        customerNameTextView = findViewById(R.id.customer_name_awaiting_order_det);
+        customerPhoneTextView = findViewById(R.id.numbertv_awaiting_order_det);
+        customerEmailTextView = findViewById(R.id.emailtv_awaiting_order_det);
+        customerAddressTextView = findViewById(R.id.addresstv_awaiting_order_det);
+        MessgaeMagasinTextView = findViewById(R.id.order_message_awaiting_order_det);
+        OrderPriceTextView = findViewById(R.id.totalTextView_awaiting_order_det);
+        DeliveryPriceTextView = findViewById(R.id.deliveryPriceTextView_awaiting_order_det);
+        AllPriceTextView = findViewById(R.id.totalWithDeliveryTextView_awaiting_order_det);
+        OrderDateTextView = findViewById(R.id.order_date_awaiting_order_det);
+        OrderIDTextView = findViewById(R.id.order_total_awaiting_order_det);
+        OrderStatusTextView = findViewById(R.id.order_status_awaiting_order_det);
 
         // Initialize the RecyclerView
-        recyclerView = findViewById(R.id.recycler_view_cancelled_items_order);
+        recyclerView = findViewById(R.id.recycler_view_awaiting_items_order);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // Initialize the items list and adapter
         orderItemsList = new ArrayList<>();
         orderItemsAdapter = new OrderItemsAdapter(orderItemsList);
         recyclerView.setAdapter(orderItemsAdapter);
+
+
+
 
         sendOrderIdToPHP(orderId);
         getOrderDetailsFromPHP(orderId);
@@ -133,7 +136,6 @@ public class CancelledOrderActivity extends AppCompatActivity {
                             // Get order status
                             String orderStatus = order.getString("orderStatus");
 
-
                             customerNameTextView.setText(customerName);
                             customerPhoneTextView.setText(customerNumber);
                             customerEmailTextView.setText(customerEmail);
@@ -162,9 +164,9 @@ public class CancelledOrderActivity extends AppCompatActivity {
                                 Log.d("Order Item", "Name: " + itemName + ", Quantity: " + itemQuantity + ", Price: " + itemPrice);
                             }
 
+
                             // Notify the adapter that the data has changed
                             orderItemsAdapter.notifyDataSetChanged();
-
                             // Display other details as needed
                             Log.d("Order Details", "Price: " + orderPrice + ", Delivery Price: " + deliveryPrice);
                             Log.d("Customer Details", "Name: " + customerName + ", Email: " + customerEmail);

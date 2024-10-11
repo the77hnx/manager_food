@@ -31,11 +31,8 @@ public class InPreparationOrdersAdapter extends RecyclerView.Adapter<InPreparati
         this.context = context;
         this.onOrderClickListener = onOrderClickListener;
         this.orderList = new ArrayList<>();
-        for (OrderItem order : orderList) {
-            if (IN_PREPARATION_STATUS.equals(order.getOrderStatus()) || order.getIdStatutCommande() == IN_PREPARATION_STATUS_ID) {
-                this.orderList.add(order);
-            }
-        }
+        setOrderList(orderList); // Initialize the order list
+
     }
 
     @NonNull
@@ -58,6 +55,16 @@ public class InPreparationOrdersAdapter extends RecyclerView.Adapter<InPreparati
         return orderList.size();
     }
 
+    public void setOrderList(List<OrderItem> newOrderList) {
+        orderList.clear(); // Clear existing items
+        for (OrderItem order : newOrderList) {
+            // Filter based on status
+            if (IN_PREPARATION_STATUS.equals(order.getOrderStatus()) || order.getIdStatutCommande() == IN_PREPARATION_STATUS_ID) {
+                orderList.add(order); // Add only new orders
+            }
+        }
+        notifyDataSetChanged(); // Notify the adapter of data change
+    }
     public interface OnOrderClickListener {
         void onOrderClick(OrderItem order);
     }
@@ -82,13 +89,12 @@ public class InPreparationOrdersAdapter extends RecyclerView.Adapter<InPreparati
             itemsRecyclerView = itemView.findViewById(R.id.recycler_view_cancelled_items);
         }
         public void bind(OrderItem order) {
-            // Similar binding logic as NewOrderViewHolder
-            customerName.setText(order.getCustomerName());
-            orderDate.setText(order.getOrderDate());
-            orderId.setText(order.getOrderId());
-            orderTotal.setText(String.format("%s %s", order.getOrderTotal(), itemView.getContext()));
+            customerName.setText("اسم الزبون : " + order.getCustomerName());
+            orderDate.setText( "تاريخ الطلب : " + order.getOrderDate());
+            orderId.setText("ايدي الطلب : " + order.getOrderId());
+            orderTotal.setText(String.format("السعر الاجمالي : %s", order.getOrderTotal(), itemView.getContext()) + "دج"); // Assuming you have a currency symbol in resources
             orderMessage.setText(order.getOrderMessage());
-            orderStatus.setText(order.getOrderStatus());
+            orderStatus.setText("حالة الطلب : " + order.getOrderStatus());
             OrderItemsAdapter itemsAdapter = new OrderItemsAdapter(order.getItems());
             itemsRecyclerView.setAdapter(itemsAdapter);
             itemsRecyclerView.setLayoutManager(new LinearLayoutManager(itemView.getContext()));

@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layoutDirection="rtl"
-    tools:context=".NewOrderActivity">
+    tools:context=".CancelledOrderActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -52,7 +52,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/customer_name"
+                android:id="@+id/customer_name_cancelled_order_det"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="أحمد علي"
@@ -62,7 +62,7 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/order_date"
+                android:id="@+id/order_date_cancelled_order_det"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="اليوم الساعة 12:33 ص"
@@ -72,7 +72,7 @@
         </LinearLayout>
 
         <TextView
-            android:id="@+id/order_total"
+            android:id="@+id/order_total_cancelled_order_det"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="رقم الطلب: 348"
@@ -119,7 +119,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/numbertv"
+                    android:id="@+id/numbertv_cancelled_order_det"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -169,7 +169,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/emailtv"
+                    android:id="@+id/emailtv_cancelled_order_det"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -220,7 +220,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/addresstv"
+                    android:id="@+id/addresstv_cancelled_order_det"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -259,7 +259,7 @@
                 android:textSize="20sp"
                 />
             <TextView
-                android:id="@+id/order_message"
+                android:id="@+id/order_message_cancelled_order_det"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -312,87 +312,12 @@
                     android:gravity="end" />
             </LinearLayout>
 
-            <LinearLayout
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_cancelled_items_order"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:layout_marginBottom="4dp">
-
-                <TextView
-                    android:id="@+id/item_name_1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="طاكوس"
-                    android:fontFamily="@font/hacen_beirut_bight"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/item_quantity_1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="الكمية: 2"
-                    android:fontFamily="@font/hacen_beirut_bight"
-
-                    android:textSize="14sp"
-                    android:gravity="center" />
-
-                <TextView
-                    android:id="@+id/item_price_1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="24.00 دج"
-                    android:fontFamily="@font/hacen_beirut_bight"
-
-                    android:textSize="14sp"
-                    android:gravity="end" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:layout_marginBottom="4dp">
-
-                <TextView
-                    android:id="@+id/item_name_2"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="بيتزا"
-                    android:fontFamily="@font/hacen_beirut_bight"
-
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/item_quantity_2"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="الكمية: 1"
-                    android:textSize="14sp"
-                    android:fontFamily="@font/hacen_beirut_bight"
-
-                    android:gravity="center" />
-
-                <TextView
-                    android:id="@+id/item_price_2"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="18.00 دج"
-                    android:textSize="14sp"
-                    android:fontFamily="@font/hacen_beirut_bight"
-
-                    android:gravity="end" />
-            </LinearLayout>
-
+                android:layout_marginBottom="4dp"
+                android:nestedScrollingEnabled="false" />
 
 
 
@@ -411,7 +336,7 @@
        >
 
         <TextView
-            android:id="@+id/totalTextView"
+            android:id="@+id/totalTextView_cancelled_order_det"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -422,7 +347,7 @@
             android:textSize="20sp" />
 
         <TextView
-            android:id="@+id/deliveryPriceTextView"
+            android:id="@+id/deliveryPriceTextView_cancelled_order_det"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -433,7 +358,7 @@
             android:textSize="20sp" />
 
         <TextView
-            android:id="@+id/totalWithDeliveryTextView"
+            android:id="@+id/totalWithDeliveryTextView_cancelled_order_det"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -455,7 +380,7 @@
         android:background="#A8A8A8" />
 
     <TextView
-        android:id="@+id/order_status"
+        android:id="@+id/order_status_cancelled_order_det"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="@font/hacen_beirut_bight"

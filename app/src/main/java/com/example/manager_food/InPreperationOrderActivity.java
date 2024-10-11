@@ -1,6 +1,6 @@
 package com.example.manager_food;
 
-import android.graphics.Color;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -25,9 +25,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class CancelledOrderActivity extends AppCompatActivity {
+public class InPreperationOrderActivity extends AppCompatActivity {
 
     // Declare TextViews at the class level
     private TextView customerNameTextView;
@@ -41,6 +43,7 @@ public class CancelledOrderActivity extends AppCompatActivity {
     private TextView OrderDateTextView;
     private TextView OrderIDTextView;
     private TextView OrderStatusTextView;
+    private Button DonePrep , CancelOrder;
     private RecyclerView recyclerView;
     private OrderItemsAdapter orderItemsAdapter;
     private List<OrderItems> orderItemsList; // Change to List of OrderItems
@@ -48,25 +51,27 @@ public class CancelledOrderActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_cancelled_order);
+        setContentView(R.layout.activity_in_preperation_order);
 
         // Extract order details from Intent
         String orderId = getIntent().getStringExtra("orderId");
         Log.d("NewOrderActivity", "Received orderId: " + orderId);
-         customerNameTextView = findViewById(R.id.customer_name_cancelled_order_det);
-         customerPhoneTextView = findViewById(R.id.numbertv_cancelled_order_det);
-         customerEmailTextView = findViewById(R.id.emailtv_cancelled_order_det);
-         customerAddressTextView = findViewById(R.id.addresstv_cancelled_order_det);
-         MessgaeMagasinTextView = findViewById(R.id.order_message_cancelled_order_det);
-         OrderPriceTextView = findViewById(R.id.totalTextView_cancelled_order_det);
-         DeliveryPriceTextView = findViewById(R.id.deliveryPriceTextView_cancelled_order_det);
-         AllPriceTextView = findViewById(R.id.totalWithDeliveryTextView_cancelled_order_det);
-         OrderDateTextView = findViewById(R.id.order_date_cancelled_order_det);
-         OrderIDTextView = findViewById(R.id.order_total_cancelled_order_det);
-         OrderStatusTextView = findViewById(R.id.order_status_cancelled_order_det);
+        customerNameTextView = findViewById(R.id.customer_name_in_preperation_order_det);
+        customerPhoneTextView = findViewById(R.id.numbertv_in_preperation_order_det);
+        customerEmailTextView = findViewById(R.id.emailtv_in_preperation_order_det);
+        customerAddressTextView = findViewById(R.id.addresstv_in_preperation_order_det);
+        MessgaeMagasinTextView = findViewById(R.id.order_message_in_preperation_order_det);
+        OrderPriceTextView = findViewById(R.id.totalTextView_in_preperation_order_det);
+        DeliveryPriceTextView = findViewById(R.id.deliveryPriceTextView_in_preperation_order_det);
+        AllPriceTextView = findViewById(R.id.totalWithDeliveryTextView_in_preperation_order_det);
+        OrderDateTextView = findViewById(R.id.order_date_in_preperation_order_det);
+        OrderIDTextView = findViewById(R.id.order_total_in_preperation_order_det);
+        OrderStatusTextView = findViewById(R.id.order_status_in_preperation_order_det);
+        DonePrep = findViewById(R.id.done_prep_order_det);
+        CancelOrder = findViewById(R.id.cancel_order_in_preperation_det);
 
         // Initialize the RecyclerView
-        recyclerView = findViewById(R.id.recycler_view_cancelled_items_order);
+        recyclerView = findViewById(R.id.recycler_view_inpreparation_items);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // Initialize the items list and adapter
@@ -77,6 +82,22 @@ public class CancelledOrderActivity extends AppCompatActivity {
         sendOrderIdToPHP(orderId);
         getOrderDetailsFromPHP(orderId);
 
+
+        DonePrep.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Call function to update order status to 2 (Accepted)
+                updateOrderStatus(orderId, 3);
+            }
+        });
+
+        CancelOrder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Call function to update order status to 5 (Cancelled)
+                updateOrderStatus(orderId, 5);
+            }
+        });
     }
 
     private void sendOrderIdToPHP(String orderId) {
@@ -146,7 +167,6 @@ public class CancelledOrderActivity extends AppCompatActivity {
                             OrderIDTextView.setText( " رقم الطلب : " + orderId);
                             OrderStatusTextView.setText( " حالة الطلب : " + orderStatus);
 
-
                             // Get order items
                             JSONArray items = order.getJSONArray("items");
                             for (int i = 0; i < items.length(); i++) {
@@ -162,6 +182,7 @@ public class CancelledOrderActivity extends AppCompatActivity {
                                 Log.d("Order Item", "Name: " + itemName + ", Quantity: " + itemQuantity + ", Price: " + itemPrice);
                             }
 
+
                             // Notify the adapter that the data has changed
                             orderItemsAdapter.notifyDataSetChanged();
 
@@ -171,6 +192,7 @@ public class CancelledOrderActivity extends AppCompatActivity {
 
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            Log.e("Eroor", e.getMessage());
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -184,6 +206,51 @@ public class CancelledOrderActivity extends AppCompatActivity {
         // Add the request to the queue
         requestQueue.add(jsonObjectRequest);
     }
+    private void updateOrderStatus(String orderId, int newStatus) {
+        String url = "http://192.168.1.33/fissa/Manager/Update_Status_cmd.php";
 
+        // Create a request queue
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        // Create a StringRequest to send the orderId and newStatus via POST
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Log or handle the server response
+                        Log.d("PHP Response", response);
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response);
+                            if (jsonResponse.has("message")) {
+                                Log.d("Order Update", "Success: " + jsonResponse.getString("message"));
+                                Intent intent = new Intent(InPreperationOrderActivity.this , OurOrdersActivity.class);
+                                startActivity(intent);
+                            } else if (jsonResponse.has("error")) {
+                                Log.e("Order Update", "Error: " + jsonResponse.getString("error"));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // Handle error response
+                Log.e("Volley Error", error.toString());
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() {
+                // Send the orderId and newStatus as POST parameters
+                Map<String, String> params = new HashMap<>();
+                params.put("orderId", orderId);
+                params.put("status", String.valueOf(newStatus));
+                return params;
+            }
+        };
+
+        // Add the request to the queue
+        requestQueue.add(stringRequest);
+    }
 
 }

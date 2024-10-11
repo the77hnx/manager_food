@@ -24,7 +24,7 @@ public class CancelledOrdersAdapter extends RecyclerView.Adapter<CancelledOrders
 
     // Define a constant for the "Cancelled" status
     private static final String CANCELLED_STATUS = "Cancelled";
-    private static final int CANCELLED_STATUS_ID = 3; // Assuming 3 corresponds to "Cancelled"
+    private static final int CANCELLED_STATUS_ID = 5; // Assuming 3 corresponds to "Cancelled"
 
     public CancelledOrdersAdapter(Context context, List<OrderItem> orderList, OnOrderClickListener onOrderClickListener) {
         this.context = context;
@@ -32,11 +32,8 @@ public class CancelledOrdersAdapter extends RecyclerView.Adapter<CancelledOrders
 
         // Filter the orders to show only cancelled ones
         this.orderList = new ArrayList<>();
-        for (OrderItem order : orderList) {
-            if (CANCELLED_STATUS.equals(order.getOrderStatus()) || order.getIdStatutCommande() == CANCELLED_STATUS_ID) {
-                this.orderList.add(order);
-            }
-        }
+        setOrderList(orderList); // Initialize the order list
+
     }
 
     @NonNull
@@ -58,7 +55,16 @@ public class CancelledOrdersAdapter extends RecyclerView.Adapter<CancelledOrders
     public int getItemCount() {
         return orderList.size();
     }
-
+    public void setOrderList(List<OrderItem> newOrderList) {
+        orderList.clear(); // Clear existing items
+        for (OrderItem order : newOrderList) {
+            // Filter based on status
+            if (CANCELLED_STATUS.equals(order.getOrderStatus()) || order.getIdStatutCommande() == CANCELLED_STATUS_ID) {
+                orderList.add(order); // Add only new orders
+            }
+        }
+        notifyDataSetChanged(); // Notify the adapter of data change
+    }
     public interface OnOrderClickListener {
         void onOrderClick(OrderItem order);
     }
@@ -84,13 +90,12 @@ public class CancelledOrdersAdapter extends RecyclerView.Adapter<CancelledOrders
         }
 
         public void bind(OrderItem order) {
-            customerName.setText(order.getCustomerName());
-            orderDate.setText(order.getOrderDate());
-            orderId.setText(order.getOrderId());
-            orderTotal.setText(String.format("%s %s", order.getOrderTotal(), itemView.getContext()));
+            customerName.setText("اسم الزبون : " + order.getCustomerName());
+            orderDate.setText( "تاريخ الطلب : " + order.getOrderDate());
+            orderId.setText("ايدي الطلب : " + order.getOrderId());
+            orderTotal.setText(String.format("السعر الاجمالي : %s", order.getOrderTotal(), itemView.getContext()) + "دج"); // Assuming you have a currency symbol in resources
             orderMessage.setText(order.getOrderMessage());
-            orderStatus.setText(order.getOrderStatus());
-            // Set up the items RecyclerView
+            orderStatus.setText("حالة الطلب : " + order.getOrderStatus());
             OrderItemsAdapter itemsAdapter = new OrderItemsAdapter(order.getItems());
             itemsRecyclerView.setAdapter(itemsAdapter);
             itemsRecyclerView.setLayoutManager(new LinearLayoutManager(itemView.getContext()));

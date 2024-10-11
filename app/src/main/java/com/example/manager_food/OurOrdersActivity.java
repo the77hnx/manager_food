@@ -92,10 +92,10 @@ public class OurOrdersActivity extends AppCompatActivity {
                     tab.setText("في انتظار التسليم");
                     break;
                 case 4:
-                    tab.setText("ملغية");
+                    tab.setText("مكتملة");
                     break;
                 case 5:
-                    tab.setText("مكتملة");
+                    tab.setText("ملغية");
                     break;
             }
         }).attach();
