@@ -81,7 +81,7 @@ public class CancelledOrdersFragment extends Fragment {
         return fragment;
     }
     private void fetchCancelledOrders() {
-        String url = "http://192.168.1.33/fissa/Manager/Fetch_Orders.php";
+        String url = "http://192.168.1.35/fissa/Manager/Fetch_Orders.php";
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {

@@ -84,7 +84,7 @@ public class NewOrdersFragment extends Fragment {
         return fragment;
     }
     private void fetchOrders() {
-        String url = "http://192.168.1.33/fissa/Manager/Fetch_Orders.php"; // Replace with your PHP file URL
+        String url = "http://192.168.1.35/fissa/Manager/Fetch_Orders.php"; // Replace with your PHP file URL
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {

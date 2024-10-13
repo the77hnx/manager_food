@@ -1,6 +1,7 @@
 package com.example.manager_food.Adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,12 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         this.context = context;
     }
 
+    public void setCategories(List<Category> categoryList) {
+        this.categoryList.clear();
+        this.categoryList.addAll(categoryList);
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -34,6 +41,8 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Category category = categoryList.get(position);
+
+        Log.d("Adapter", "Binding category: " + category.getName());
         holder.categoryTextView.setText(category.getName());
 
         holder.itemView.setOnClickListener(v -> {

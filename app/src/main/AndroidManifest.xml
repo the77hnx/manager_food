@@ -28,10 +28,6 @@
         <activity
             android:name=".InDeliveryOrderActivity"
             android:exported="false" />
-        <activity
-            android:name=".DetailsOrderActivity"
-            android:exported="false" />
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -55,7 +51,7 @@
             android:name=".ShopMainActivity"
             android:exported="false" />
         <activity
-            android:name=".SplashScreenActivity"
+            android:name=".ShowShopDetailsActivity"
             android:exported="false" />
         <activity
             android:name=".ShopInformationActivity"
@@ -90,7 +86,7 @@
             android:name=".EditProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".ShowShopDetailsActivity"
+            android:name=".SplashScreenActivity"
             android:exported="true"
             android:theme="@style/AppTheme"> <!-- Set android:exported="true" -->
             <intent-filter>

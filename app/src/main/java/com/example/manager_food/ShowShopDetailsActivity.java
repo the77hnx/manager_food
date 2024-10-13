@@ -48,8 +48,8 @@ import java.util.List;
 public class ShowShopDetailsActivity extends AppCompatActivity {
     private static final String PREFS_NAME = "MyPrefs";
     private static final String OFFER_STATUS_KEY = "offer_status";
-    private static final String updateStoreStatusURL = "http://192.168.1.33/fissa/Manager/Status_Magasin.php";
-    private static final String fetchStoreDataURL = "http://192.168.1.33/fissa/Manager/Fetch_Magasin_Information.php";
+    private static final String updateStoreStatusURL = "http://192.168.1.35/fissa/Manager/Status_Magasin.php";
+    private static final String fetchStoreDataURL = "http://192.168.1.35/fissa/Manager/Fetch_Magasin_Information.php";
 
     private RecyclerView recyclerViewCat;
     private RecyclerView recyclerViewItem;
@@ -173,7 +173,7 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
     }
 
     private void fetchDataFromServer() {
-        String url = "http://192.168.1.33/fissa/Manager/Fetch_Cat_Prod.php";
+        String url = "http://192.168.1.35/fissa/Manager/Fetch_Cat_Prod.php";
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
@@ -189,7 +189,13 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
                         parseCategories(categories);
                         parseProducts(products);
 
+                        Log.d("Category List", categoryList.toString());
+                        Log.d("Item List", itemList.toString());
+
+                        categoryAdapter.setCategories(categoryList);
                         categoryAdapter.notifyDataSetChanged();
+
+                        itemsAdapter.setItems(itemList);
                         itemsAdapter.notifyDataSetChanged();
 
                     } catch (JSONException e) {

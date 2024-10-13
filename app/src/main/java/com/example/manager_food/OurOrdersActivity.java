@@ -1,6 +1,8 @@
 package com.example.manager_food;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,6 +17,7 @@ import com.example.manager_food.Fragement.InDeliveryOrdersFragment;
 import com.example.manager_food.Fragement.InPreparationOrdersFragment;
 import com.example.manager_food.Fragement.NewOrdersFragment;
 import com.example.manager_food.model.OrderItem;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -38,6 +41,35 @@ public class OurOrdersActivity extends AppCompatActivity {
 
         TabLayout tabLayout = findViewById(R.id.tabLayout);
         ViewPager2 viewPager = findViewById(R.id.viewPager);
+
+
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView_oord);
+        bottomNavigationView.setSelectedItemId(R.id.navigation_basket); // Change this based on the activity
+
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int itemId = item.getItemId();
+                if (itemId == R.id.navigation_home) {
+                    // Navigate to ShopsActivity
+                    startActivity(new Intent(OurOrdersActivity.this, ShopMainActivity.class));
+                    return true;
+                } else if (itemId == R.id.navigation_following) {
+                    // Show toast indicating following action
+                    startActivity(new Intent(OurOrdersActivity.this, ShowShopDetailsActivity.class));
+                    return true;
+                } else if (itemId == R.id.navigation_basket) {
+                    // Navigate to OrderSummaryActivity
+                    startActivity(new Intent(OurOrdersActivity.this, OurOrdersActivity.class));
+                    return true;
+                } else if (itemId == R.id.navigation_profile) {
+                    // Navigate to ProfileActivity
+                    startActivity(new Intent(OurOrdersActivity.this, EditProfileActivity.class));
+                    return true;
+                }
+                return false;
+            }
+        });
 
         fetchOrdersFromServer(); // Fetch orders from the server
 

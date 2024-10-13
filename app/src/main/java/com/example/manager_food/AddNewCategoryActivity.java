@@ -29,7 +29,7 @@ public class AddNewCategoryActivity extends AppCompatActivity {
     private ImageView imageView;
     private Button btnSave;
     private Uri imageUri; // To store the selected image URI
-    private static final String PHP_URL = "http://192.168.1.34/fissa/Manager/Add_category.php";
+    private static final String PHP_URL = "http://192.168.1.35/fissa/Manager/Add_category.php";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -35,8 +35,8 @@ public class ShopMainActivity extends AppCompatActivity {
     private static final String PREFS_NAME = "MyPrefs";
     private static final String OFFER_STATUS_KEY = "offer_status";
 
-    private static final String fetchStoreDataURL = "http://192.168.1.33/fissa/Manager/Fetch_Magasin_Information.php";
-    private static final String updateStoreStatusURL = "http://192.168.1.33/fissa/Manager/Status_Magasin.php";
+    private static final String fetchStoreDataURL = "http://192.168.1.35/fissa/Manager/Fetch_Magasin_Information.php";
+    private static final String updateStoreStatusURL = "http://192.168.1.35/fissa/Manager/Status_Magasin.php";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

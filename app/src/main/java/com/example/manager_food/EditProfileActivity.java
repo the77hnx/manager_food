@@ -266,7 +266,7 @@ public class EditProfileActivity extends AppCompatActivity {
         Log.d("EditProfileActivity", "Coordinates: " + coordinates);
 
         // Perform network request here
-        String url = "http://192.168.1.33/fissa/Manager/Update_Profile.php"; // Update with your PHP endpoint
+        String url = "http://192.168.1.35/fissa/Manager/Update_Profile.php"; // Update with your PHP endpoint
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 response -> {

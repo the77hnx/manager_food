@@ -80,7 +80,7 @@ public class CancelledOrderActivity extends AppCompatActivity {
     }
 
     private void sendOrderIdToPHP(String orderId) {
-        String url = "http://192.168.1.33/fissa/Manager/Details_Order.php?orderId=" + orderId;
+        String url = "http://192.168.1.35/fissa/Manager/Details_Order.php?orderId=" + orderId;
 
         // Create a request queue
         RequestQueue requestQueue = Volley.newRequestQueue(this);
@@ -105,7 +105,7 @@ public class CancelledOrderActivity extends AppCompatActivity {
         requestQueue.add(stringRequest);
     }
     private void getOrderDetailsFromPHP(String orderId) {
-        String url = "http://192.168.1.33/fissa/Manager/Details_Order.php?orderId=" + orderId;
+        String url = "http://192.168.1.35/fissa/Manager/Details_Order.php?orderId=" + orderId;
 
         // Create a request queue
         RequestQueue requestQueue = Volley.newRequestQueue(this);
