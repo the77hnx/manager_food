@@ -1,14 +1,11 @@
 package com.example.manager_food;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -21,14 +18,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.manager_food.Adapter.CategoryAdapter;
 import com.example.manager_food.Adapter.ItemsAdapter;
+import com.example.manager_food.DBHelper.DBHelper;
 import com.example.manager_food.model.Category;
 import com.example.manager_food.model.Item;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -42,8 +38,13 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import okhttp3.OkHttpClient;
 
 public class ShowShopDetailsActivity extends AppCompatActivity {
     private static final String PREFS_NAME = "MyPrefs";
@@ -61,6 +62,8 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
 
     private List<Item> itemList;
     private List<Category> categoryList;
+    private OkHttpClient client;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,9 +79,12 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
         addCategoryButton = findViewById(R.id.addcategory);
         addProductButton = findViewById(R.id.addproduct);
         status_det = findViewById(R.id.status_det);
+        client = new OkHttpClient();
+
         // Load the saved offer switch state
         SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         boolean offerStatus = preferences.getBoolean(OFFER_STATUS_KEY, false);
+        offerSwitch.setChecked(offerStatus);
 
         // Retrieve the offer switch status from the Intent (if passed)
         Intent intent = getIntent();
@@ -86,16 +92,19 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
             offerStatus = intent.getBooleanExtra("OFFER_STATUS", false);
         }
 
+        DBHelper dbHelper = new DBHelper(this);
+        String userId = dbHelper.getUserId();
+        Log.d("user id = ", userId) ;
+
         // Set the offerSwitch state and update the offerStatusTextView
         offerSwitch.setChecked(offerStatus);
         updateOfferStatusText(offerStatus);
 
         // Set up listener for the offerSwitch to sync with offerStatusTextView
         offerSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            updateOfferStatusText(isChecked);
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putBoolean(OFFER_STATUS_KEY, isChecked);
-            editor.apply();
+            updateBasketText(isChecked);
+            saveOfferSwitchState(isChecked); // Save state when it changes
+            updateStoreStatus(isChecked, userId);    // Update status on the server
         });
 
         // Initialize category and item lists
@@ -151,7 +160,9 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
 
 
         // Fetch data from server
-        fetchDataFromServer();
+        fetchDataFromServer(userId);
+        showStoreStatus(userId); // Call to fetch and display current store status
+
     }
 
     private void updateOfferStatusText(boolean isChecked) {
@@ -172,11 +183,24 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
         recyclerViewItem.setAdapter(itemsAdapter);
     }
 
-    private void fetchDataFromServer() {
+    private void fetchDataFromServer(String userId) {
         String url = "http://192.168.1.35/fissa/Manager/Fetch_Cat_Prod.php";
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+        // Create a JSONObject to hold the POST parameters
+        JSONObject postData = new JSONObject();
+        try {
+            postData.put("user_id", userId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("JSON Error", "Failed to create JSON object for request.");
+            return;
+        }
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                Request.Method.POST, // Change the request method to POST
+                url,
+                postData, // Pass the JSON object as the request body
                 response -> {
                     try {
                         categoryList.clear();
@@ -206,10 +230,19 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
                 error -> {
                     Log.e("Error fetching data", error.toString());
                     Toast.makeText(ShowShopDetailsActivity.this, "Error fetching data: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+        };
 
         requestQueue.add(jsonObjectRequest);
     }
+
 
     private void parseCategories(JSONArray categories) throws JSONException {
         for (int i = 0; i < categories.length(); i++) {
@@ -241,9 +274,7 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
         return categoryNames;
     }
 
-
-
-    private void showStoreStatus() {
+    private void showStoreStatus(String userId) {
         new AsyncTask<Void, Void, String>() {
             @Override
             protected String doInBackground(Void... voids) {
@@ -253,6 +284,16 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
                     connection.setRequestMethod("GET");
                     connection.setDoInput(true);
 
+                    // Prepare the POST data
+                    String postData = "user_id=" + URLEncoder.encode(userId, "UTF-8");
+
+                    // Send the POST data
+                    OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+                    writer.write(postData);
+                    writer.flush();
+                    writer.close();
+
+                    // Read the response
                     BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                     StringBuilder result = new StringBuilder();
                     String line;
@@ -285,8 +326,7 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
             }
         }.execute();
     }
-
-    private void updateStoreStatus(boolean isOpen) {
+    private void updateStoreStatus(boolean isOpen, String userId) {
         new AsyncTask<Boolean, Void, Boolean>() {
             @Override
             protected Boolean doInBackground(Boolean... params) {
@@ -295,17 +335,23 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("POST");
                     connection.setDoOutput(true);
+                    connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
-                    String data = "statut_magasin=" + (params[0] ? "مفتوح" : "مغلق");
+                    // Prepare the POST data
+                    String statutMagasin = params[0] ? "مفتوح" : "مغلق";
+                    String postData = "user_id=" + URLEncoder.encode(userId, "UTF-8") +
+                            "&statut_magasin=" + URLEncoder.encode(statutMagasin, "UTF-8");
 
-                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
-                    writer.write(data);
+                    // Send the POST data
+                    OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+                    writer.write(postData);
                     writer.flush();
                     writer.close();
 
                     int responseCode = connection.getResponseCode();
+                    Log.d("Update Store Status", "Sending status: " + statutMagasin + ", Response code: " + responseCode);
 
-                    Log.d("Update Store Status", "Sending status: " + (params[0] ? "مفتوح" : "مغلق"));
+                    // Return true if the response code is 200 (HTTP_OK)
                     return responseCode == HttpURLConnection.HTTP_OK;
 
                 } catch (Exception e) {
@@ -325,8 +371,6 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
             }
         }.execute(isOpen);
     }
-
-
     private void updateStoreStatusUI(String status) {
         // Update the UI based on the store status
         if ("مفتوح".equals(status)) {
@@ -337,8 +381,6 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
             updateBasketText(false); // Update basket text to "مغلق"
         }
     }
-
-    // Method to update the basket TextView based on the Switch state
     private void updateBasketText(boolean isChecked) {
         if (isChecked) {
             status_det.setText("مفتوح");
@@ -347,5 +389,11 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
             status_det.setText("مغلق");
             status_det.setTextColor(getResources().getColor(R.color.red));
         }
+    }
+    private void saveOfferSwitchState(boolean isChecked) {
+        SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean(OFFER_STATUS_KEY, isChecked);
+        editor.apply();
     }
 }

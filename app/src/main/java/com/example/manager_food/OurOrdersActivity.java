@@ -2,6 +2,7 @@ package com.example.manager_food;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
@@ -10,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.manager_food.DBHelper.DBHelper;
 import com.example.manager_food.Fragement.AwaitingDeliveryOrdersFragment;
 import com.example.manager_food.Fragement.CancelledOrdersFragment;
 import com.example.manager_food.Fragement.CompletedOrdersFragment;
@@ -24,6 +26,8 @@ import com.google.android.material.tabs.TabLayoutMediator;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.OkHttpClient;
+
 public class OurOrdersActivity extends AppCompatActivity {
 
     private List<OrderItem> case0Orders = new ArrayList<>();
@@ -33,6 +37,8 @@ public class OurOrdersActivity extends AppCompatActivity {
     private List<OrderItem> case4Orders = new ArrayList<>();
     private List<OrderItem> case5Orders = new ArrayList<>();
     private FragmentStateAdapter pagerAdapter;
+    private OkHttpClient client;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +47,12 @@ public class OurOrdersActivity extends AppCompatActivity {
 
         TabLayout tabLayout = findViewById(R.id.tabLayout);
         ViewPager2 viewPager = findViewById(R.id.viewPager);
+        client = new OkHttpClient();
+
+        DBHelper dbHelper = new DBHelper(this);
+        String userId = dbHelper.getUserId();
+        Log.d("user id = ", userId) ;
+
 
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView_oord);
@@ -71,7 +83,7 @@ public class OurOrdersActivity extends AppCompatActivity {
             }
         });
 
-        fetchOrdersFromServer(); // Fetch orders from the server
+        fetchOrdersFromServer(userId); // Fetch orders from the server
 
         setupViewPager(viewPager); // Set up the ViewPager with the adapter
         setupTabLayout(tabLayout, viewPager); // Set up the TabLayout with the ViewPager
@@ -133,7 +145,7 @@ public class OurOrdersActivity extends AppCompatActivity {
         }).attach();
     }
 
-    private void fetchOrdersFromServer() {
+    private void fetchOrdersFromServer(String userId) {
         // Simulate fetching orders and populating the lists like case0Orders, case1Orders, etc.
     }
 }

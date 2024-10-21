@@ -24,6 +24,7 @@ import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.manager_food.DBHelper.DBHelper;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -39,6 +40,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import okhttp3.OkHttpClient;
+
 public class EditProfileActivity extends AppCompatActivity {
 
     private TextView displayTextView, descriptionTextView, addressTextView, gpsTextView, telrestv, passwordrestv, repasswordrestv;
@@ -48,6 +51,8 @@ public class EditProfileActivity extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationClient;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private String currentLocation;
+    private OkHttpClient client;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +80,7 @@ public class EditProfileActivity extends AppCompatActivity {
         editBtn6 = findViewById(R.id.editbtn6);
         btnPhoneLogin = findViewById(R.id.saveeditbtn);
         gpsTextView = findViewById(R.id.editGPStext);
-
+        client = new OkHttpClient();
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView_ep);
         bottomNavigationView.setSelectedItemId(R.id.navigation_profile); // Change this based on the activity
@@ -104,6 +109,13 @@ public class EditProfileActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+
+        DBHelper dbHelper = new DBHelper(this);
+        String userId = dbHelper.getUserId();
+        Log.d("user id = ", userId) ;
+
+
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         // Set click listeners for the buttons
         editBtn1.setOnClickListener(v -> {
@@ -141,7 +153,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 Toast.makeText(EditProfileActivity.this, "Passwords do not match. Please re-enter.", Toast.LENGTH_SHORT).show();
             } else {
                 // Save all edits if passwords match
-                saveAllEdits();
+                saveAllEdits(userId);
                 // Navigate to the menu page
                 Intent intent = new Intent(EditProfileActivity.this, LoginActivity.class);
                 startActivity(intent);
@@ -247,7 +259,7 @@ public class EditProfileActivity extends AppCompatActivity {
         }
     }
 
-    private void saveAllEdits() {
+    private void saveAllEdits(String userId) {
         // Prepare data to send
         String restaurantName = etName.getText().toString();
         String description = etDescription.getText().toString();
@@ -288,6 +300,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 params.put("Password", password);
                 params.put("Address_magasin", address);
                 params.put("Coordonnes", coordinates);
+                params.put("userId", userId);
                 return params;
             }
         };

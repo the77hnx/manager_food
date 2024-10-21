@@ -14,6 +14,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.manager_food.DBHelper.DBHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONException;
@@ -25,12 +26,16 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+
+import okhttp3.OkHttpClient;
 
 public class ShopMainActivity extends AppCompatActivity {
 
     private TextView basket, shopname, valwallet, valtoday,valweek, valmonth,cat_num,item_num, accepted_order, rejected_order, today_orders, monthly_orders, eval_res;
     private Switch offerSwitch;
     private Button addProductButton;
+    private OkHttpClient client;
 
     private static final String PREFS_NAME = "MyPrefs";
     private static final String OFFER_STATUS_KEY = "offer_status";
@@ -58,6 +63,7 @@ public class ShopMainActivity extends AppCompatActivity {
         offerSwitch = findViewById(R.id.offer_switch_main);
         cat_num = findViewById(R.id.cat_num);
         item_num = findViewById(R.id.item_num);
+        client = new OkHttpClient();
 
         // Load the saved offer switch state
         SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
@@ -66,17 +72,19 @@ public class ShopMainActivity extends AppCompatActivity {
 
         // Set initial state of the basket TextView
         updateBasketText(offerSwitch.isChecked());
-
+        DBHelper dbHelper = new DBHelper(this);
+        String userId = dbHelper.getUserId();
+        Log.d("user id = ", userId) ;
         // Fetch store data from the server
-        fetchStoreData();
-        showStoreStatus(); // Call to fetch and display current store status
+        fetchStoreData(userId);
+        showStoreStatus(userId); // Call to fetch and display current store status
 
 
         // Set up listener for the Switch
         offerSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             updateBasketText(isChecked);
             saveOfferSwitchState(isChecked); // Save state when it changes
-            updateStoreStatus(isChecked);    // Update status on the server
+            updateStoreStatus(isChecked, userId);    // Update status on the server
         });
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView_sm);
@@ -106,17 +114,27 @@ public class ShopMainActivity extends AppCompatActivity {
         });
     }
 
-    // Method to fetch store data from the server
-    private void fetchStoreData() {
+    private void fetchStoreData(String userId) {
         new AsyncTask<Void, Void, String>() {
             @Override
             protected String doInBackground(Void... voids) {
                 try {
+                    // URL for your PHP script
                     URL url = new URL(fetchStoreDataURL);
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("GET");
                     connection.setDoInput(true);
 
+                    // Prepare the POST data
+                    String postData = "user_id=" + URLEncoder.encode(userId, "UTF-8");
+
+                    // Send the POST data
+                    OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+                    writer.write(postData);
+                    writer.flush();
+                    writer.close();
+
+                    // Read the response
                     BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                     StringBuilder result = new StringBuilder();
                     String line;
@@ -178,21 +196,7 @@ public class ShopMainActivity extends AppCompatActivity {
             }
         }.execute();
     }
-
-    // Method to update the store status on the server
-
-
-
-    // Call this method in onCreate() to fetch the initial status
-
-    private void saveOfferSwitchState(boolean isChecked) {
-        SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean(OFFER_STATUS_KEY, isChecked);
-        editor.apply();
-    }
-
-    private void showStoreStatus() {
+    private void showStoreStatus(String userId) {
         new AsyncTask<Void, Void, String>() {
             @Override
             protected String doInBackground(Void... voids) {
@@ -202,6 +206,16 @@ public class ShopMainActivity extends AppCompatActivity {
                     connection.setRequestMethod("GET");
                     connection.setDoInput(true);
 
+                    // Prepare the POST data
+                    String postData = "user_id=" + URLEncoder.encode(userId, "UTF-8");
+
+                    // Send the POST data
+                    OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+                    writer.write(postData);
+                    writer.flush();
+                    writer.close();
+
+                    // Read the response
                     BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                     StringBuilder result = new StringBuilder();
                     String line;
@@ -234,8 +248,7 @@ public class ShopMainActivity extends AppCompatActivity {
             }
         }.execute();
     }
-
-    private void updateStoreStatus(boolean isOpen) {
+    private void updateStoreStatus(boolean isOpen, String userId) {
         new AsyncTask<Boolean, Void, Boolean>() {
             @Override
             protected Boolean doInBackground(Boolean... params) {
@@ -244,17 +257,23 @@ public class ShopMainActivity extends AppCompatActivity {
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("POST");
                     connection.setDoOutput(true);
+                    connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
-                    String data = "statut_magasin=" + (params[0] ? "مفتوح" : "مغلق");
+                    // Prepare the POST data
+                    String statutMagasin = params[0] ? "مفتوح" : "مغلق";
+                    String postData = "user_id=" + URLEncoder.encode(userId, "UTF-8") +
+                            "&statut_magasin=" + URLEncoder.encode(statutMagasin, "UTF-8");
 
-                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
-                    writer.write(data);
+                    // Send the POST data
+                    OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+                    writer.write(postData);
                     writer.flush();
                     writer.close();
 
                     int responseCode = connection.getResponseCode();
+                    Log.d("Update Store Status", "Sending status: " + statutMagasin + ", Response code: " + responseCode);
 
-                    Log.d("Update Store Status", "Sending status: " + (params[0] ? "مفتوح" : "مغلق"));
+                    // Return true if the response code is 200 (HTTP_OK)
                     return responseCode == HttpURLConnection.HTTP_OK;
 
                 } catch (Exception e) {
@@ -274,8 +293,6 @@ public class ShopMainActivity extends AppCompatActivity {
             }
         }.execute(isOpen);
     }
-
-
     private void updateStoreStatusUI(String status) {
         // Update the UI based on the store status
         if ("مفتوح".equals(status)) {
@@ -286,8 +303,6 @@ public class ShopMainActivity extends AppCompatActivity {
             updateBasketText(false); // Update basket text to "مغلق"
         }
     }
-
-    // Method to update the basket TextView based on the Switch state
     private void updateBasketText(boolean isChecked) {
         if (isChecked) {
             basket.setText("مفتوح");
@@ -296,5 +311,11 @@ public class ShopMainActivity extends AppCompatActivity {
             basket.setText("مغلق");
             basket.setTextColor(getResources().getColor(R.color.red));
         }
+    }
+    private void saveOfferSwitchState(boolean isChecked) {
+        SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean(OFFER_STATUS_KEY, isChecked);
+        editor.apply();
     }
 }

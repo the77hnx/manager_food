@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,6 +22,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.manager_food.Adapter.NewOrdersAdapter;
+import com.example.manager_food.DBHelper.DBHelper;
 import com.example.manager_food.NewOrderActivity;
 import com.example.manager_food.R;
 import com.example.manager_food.model.OrderItem;
@@ -30,10 +32,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 
 public class NewOrdersFragment extends Fragment {
 
@@ -44,6 +53,7 @@ public class NewOrdersFragment extends Fragment {
     private TextView namecategory;
     private RequestQueue requestQueue;
 
+    private OkHttpClient client;
 
     @Nullable
     @Override
@@ -53,9 +63,13 @@ public class NewOrdersFragment extends Fragment {
 
         initializeViews(view);
         setupRecyclerView();
+        client = new OkHttpClient();
 
+        DBHelper dbHelper = new DBHelper(getContext());
+        String userId = dbHelper.getUserId();
+        Log.d("user id = ", userId) ;
         requestQueue = Volley.newRequestQueue(getContext());
-        fetchOrders();
+        fetchOrders(userId);
 
         return view;
     }
@@ -83,62 +97,79 @@ public class NewOrdersFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
-    private void fetchOrders() {
-        String url = "http://192.168.1.35/fissa/Manager/Fetch_Orders.php"; // Replace with your PHP file URL
+    private void fetchOrders(String userId) {
+        String url = "http://192.168.1.35/fissa/Manager/Fetch_Orders.php";
 
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            JSONArray ordersArray = response.getJSONArray("case0"); // Only for status 1 (New)
-                            Log.d("Server Response", String.valueOf(ordersArray)); // Log raw server response
+        int caseNumber = 1;
+        RequestBody postData  = new FormBody.Builder()
+                .add("user_id", userId)
+                .add("case_number", String.valueOf(caseNumber))
+                .build();
 
-                            for (int i = 0; i < ordersArray.length(); i++) {
-                                JSONObject orderObj = ordersArray.getJSONObject(i);
+        okhttp3.Request request = new okhttp3.Request.Builder()
+                .url(url)
+                .post(postData)
+                .build();
 
-                                String customerName = orderObj.getString("Nom_Client");
-                                String orderStatus = orderObj.getString("Nom_Statut");
-                                String orderDate = orderObj.getString("Date_commande");
-                                String orderTime = orderObj.getString("Heure_commande");
-                                double orderTotal = orderObj.getDouble("Prix_Demande");
-                                String orderId = orderObj.getString("Id_Demandes");
-                                String orderMessage = orderObj.getString("info_mag");
-                                int idStatutCommande = orderObj.getInt("Id_Statut_Commande");
-
-                                // Since articles are directly included in the same object, we can treat it as one item
-                                String itemName = orderObj.getString("Nom_Article");
-                                int itemQuantity = orderObj.getInt("Quantite");
-                                double itemPrice = orderObj.getDouble("Prix");
-
-                                List<OrderItems> items = new ArrayList<>();
-                                items.add(new OrderItems(itemName, itemPrice, itemQuantity));
-
-                                OrderItem orderItem = new OrderItem(customerName, orderDate, orderTime, orderId, orderTotal, orderMessage, orderStatus, idStatutCommande, items);
-
-                                orderList.add(orderItem);
-
-                                Log.d("OrderItem", orderItem.toString());
-                                Log.d("orderList", orderList.toString());
-
-                            }
-
-                            Log.d("OrderListSize", "Size: " + orderList.size());
-                            newOrderAdapter.setOrderList(orderList);
-                            newOrderAdapter.notifyDataSetChanged();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            Log.e("Error",e.getMessage());
-                        }
-                    }
-                }, new Response.ErrorListener() {
+        Log.d("request", String.valueOf(request));
+        client.newCall(request).enqueue(new Callback() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("Volley", "Error fetching orders: " + error.getMessage());
+            public void onResponse(@NonNull Call call, @NonNull okhttp3.Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    try {
+                        String responseBody = response.body().string();
+                        JSONArray ordersArray = new JSONArray(responseBody);
+                        Log.d("Server Response", String.valueOf(ordersArray));
+
+                        // Clear previous orders
+                        orderList.clear();
+
+                        for (int i = 0; i < ordersArray.length(); i++) {
+                            JSONObject orderObj = ordersArray.getJSONObject(i);
+
+                            String customerName = orderObj.getString("Nom_Client");
+                            String orderStatus = orderObj.getString("Nom_Statut");
+                            String orderDate = orderObj.getString("Date_commande");
+                            String orderTime = orderObj.getString("Heure_commande");
+                            double orderTotal = orderObj.getDouble("Prix_Demande");
+                            String orderId = orderObj.getString("Id_Demandes");
+                            String orderMessage = orderObj.getString("info_mag");
+                            int idStatutCommande = orderObj.getInt("Id_Statut_Commande");
+
+                            String itemName = orderObj.getString("Nom_Article");
+                            int itemQuantity = orderObj.getInt("Quantite");
+                            double itemPrice = orderObj.getDouble("Prix");
+
+                            List<OrderItems> items = new ArrayList<>();
+                            items.add(new OrderItems(itemName, itemPrice, itemQuantity));
+
+                            OrderItem orderItem = new OrderItem(customerName, orderDate, orderTime, orderId, orderTotal, orderMessage, orderStatus, idStatutCommande, items);
+
+                            orderList.add(orderItem);
+
+                            Log.d("OrderItem", orderItem.toString());
+                        }
+
+                        // Update the RecyclerView on the main thread
+                        getActivity().runOnUiThread(() -> {
+                            newOrderAdapter.notifyDataSetChanged();
+                        });
+                    } catch (JSONException e) {
+                        Log.e("Error", "JSON Parsing error: " + e.getMessage());
+                    }
+                } else {
+                    Log.e("Error", "Server returned error: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                getActivity().runOnUiThread(() -> {
+                    Log.e("Error", e.getMessage());
+                    Toast.makeText(getContext(), "Failed to fetch orders", Toast.LENGTH_SHORT).show();
+                });
             }
         });
-
-        requestQueue.add(request);
     }
 
 

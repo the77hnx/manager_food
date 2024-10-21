@@ -22,6 +22,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.manager_food.DBHelper.DBHelper;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,6 +40,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import okhttp3.OkHttpClient;
+
 public class AddNewItemActivity extends AppCompatActivity {
     private static final String PHP_URL = "http://192.168.1.35/fissa/Manager/Add_Product.php";
 
@@ -48,6 +52,8 @@ public class AddNewItemActivity extends AppCompatActivity {
     private ImageView imageView;
     private Button btnSave;
     private Uri imageUri;
+    private OkHttpClient client;
+
     private ArrayList<String> categoryList;
     private ArrayList<String> categoryIds;
 
@@ -63,6 +69,11 @@ public class AddNewItemActivity extends AppCompatActivity {
         etDescription = findViewById(R.id.etdescriptionprod);
         spinner = findViewById(R.id.itemCategorySpinner);
         btnSave = findViewById(R.id.btnsaveitem);
+        client = new OkHttpClient();
+
+        DBHelper dbHelper = new DBHelper(this);
+        String userId = dbHelper.getUserId();
+        Log.d("user id = ", userId) ;
 
         // Fetch categories from the server
         new FetchCategoriesTask().execute();
@@ -83,7 +94,7 @@ public class AddNewItemActivity extends AppCompatActivity {
             String categoryId = categoryIds.get(selectedCategoryIndex); // Get category ID
 
             if (validateInput(name, price, description)) {
-                new InsertProductTask(name, price, description, categoryId).execute();
+                new InsertProductTask(name, price, description, categoryId, userId).execute();
             } else {
                 Toast.makeText(this, "Please fill in all fields correctly", Toast.LENGTH_SHORT).show();
             }
@@ -189,13 +200,14 @@ public class AddNewItemActivity extends AppCompatActivity {
 
     // Insert Product into the database
     private class InsertProductTask extends AsyncTask<Void, Void, String> {
-        private String name, price, description, categoryId;
+        private String name, price, description, categoryId, userId;
 
-        InsertProductTask(String name, String price, String description, String categoryId) {
+        InsertProductTask(String name, String price, String description, String categoryId, String userId) {
             this.name = name;
             this.price = price;
             this.description = description;
             this.categoryId = categoryId;
+            this.userId = userId;
         }
 
         @Override
@@ -211,6 +223,7 @@ public class AddNewItemActivity extends AppCompatActivity {
                 params.put("Prix_Prod", price);
                 params.put("Desc_Prod", description);
                 params.put("Id_Cat", categoryId);
+                params.put("userId", userId);
 
                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
                 writer.write(getPostDataString(params));

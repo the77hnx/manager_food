@@ -17,6 +17,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.manager_food.DBHelper.DBHelper;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -98,6 +100,23 @@ public class LoginActivity extends AppCompatActivity {
                                     if (success) {
                                         String activite = jsonObject.optString("activite");
                                         if ("مقبول".equals(activite)) {
+                                            // تحقق من وجود "userId" في الرد
+                                            String userId = null;
+                                            if (jsonObject.has("userId")) {
+                                                // حفظ معرف المستخدم في قاعدة البيانات المحلية
+                                                try {
+                                                    userId = jsonObject.getString("userId");
+                                                } catch (JSONException e) {
+                                                    throw new RuntimeException(e);
+                                                }
+                                                DBHelper dbHelper = new DBHelper(LoginActivity.this);
+                                                dbHelper.insertUserId(userId);
+                                            } else {
+                                                // إذا لم يكن معرف المستخدم موجودًا في الرد
+                                                Toast.makeText(LoginActivity.this, "User ID not found in server response", Toast.LENGTH_LONG).show();
+                                            }
+                                            // If login is successful, navigate to the LocationActivity
+                                            Log.d("use id = ", userId);
                                             // Login successful and accepted store, go to ShopMainActivity
                                             Intent intent = new Intent(LoginActivity.this, ShopMainActivity.class);
                                             startActivity(intent);

@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,9 +18,14 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import com.example.manager_food.DBHelper.DBHelper;
+
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import okhttp3.OkHttpClient;
 
 public class AddNewCategoryActivity extends AppCompatActivity {
 
@@ -29,6 +35,8 @@ public class AddNewCategoryActivity extends AppCompatActivity {
     private ImageView imageView;
     private Button btnSave;
     private Uri imageUri; // To store the selected image URI
+    private OkHttpClient client;
+
     private static final String PHP_URL = "http://192.168.1.35/fissa/Manager/Add_category.php";
 
     @Override
@@ -40,6 +48,7 @@ public class AddNewCategoryActivity extends AppCompatActivity {
         imageView = findViewById(R.id.imageViewupcatadd);
         etName = findViewById(R.id.etfullnamecat);
         btnSave = findViewById(R.id.btnSavecat);
+        client = new OkHttpClient();
 
         // Check and request permissions
         if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -53,18 +62,25 @@ public class AddNewCategoryActivity extends AppCompatActivity {
             }
         });
 
+        DBHelper dbHelper = new DBHelper(this);
+        String userId = dbHelper.getUserId();
+        Log.d("user id = ", userId) ;
+
         btnSave.setOnClickListener(v -> {
             // Handle save action
             String name = etName.getText().toString().trim();
 
             if (validateInput(name)) {
                 // Save the data to server
-                saveCategoryToServer(name );
+                saveCategoryToServer(name, userId);
             } else {
                 // Show validation errors
                 etName.setError("Name cannot be empty");
             }
         });
+
+
+
     }
 
     @Override
@@ -110,15 +126,17 @@ public class AddNewCategoryActivity extends AppCompatActivity {
         }
     }
 
-    private void saveCategoryToServer(String name ) {
-        new SaveCategoryTask(name ).execute();
+    private void saveCategoryToServer(String name ,String userId) {
+        new SaveCategoryTask(name, userId).execute();
     }
 
     private class SaveCategoryTask extends AsyncTask<Void, Void, String> {
         private String name;
+        private String userId;
 
-        SaveCategoryTask(String name ) {
+        SaveCategoryTask(String name, String userId ) {
             this.name = name;
+            this.userId = userId;
         }
 
         @Override
@@ -131,6 +149,7 @@ public class AddNewCategoryActivity extends AppCompatActivity {
 
                 // Create post data
                 String postData = "name=" + name;
+                postData += "&userId=" + userId;
                 // Append imageUri if needed in the future
                 // postData += "&imageUri=" + imageUri.toString();
 
