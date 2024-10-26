@@ -104,7 +104,7 @@ public class NewOrderActivity extends AppCompatActivity {
     }
 
     private void sendOrderIdToPHP(String orderId) {
-        String url = "http://192.168.1.35/fissa/Manager/Details_Order.php?orderId=" + orderId;
+        String url = "https://www.fissadelivery.com/fissa/Manager/Details_Order.php?orderId=" + orderId;
 
         // Create a request queue
         RequestQueue requestQueue = Volley.newRequestQueue(this);
@@ -129,7 +129,7 @@ public class NewOrderActivity extends AppCompatActivity {
         requestQueue.add(stringRequest);
     }
     private void getOrderDetailsFromPHP(String orderId) {
-        String url = "http://192.168.1.35/fissa/Manager/Details_Order.php?orderId=" + orderId;
+        String url = "https://www.fissadelivery.com/fissa/Manager/Details_Order.php?orderId=" + orderId;
 
         // Create a request queue
         RequestQueue requestQueue = Volley.newRequestQueue(this);
@@ -211,7 +211,7 @@ public class NewOrderActivity extends AppCompatActivity {
 
     // Function to update order status
     private void updateOrderStatus(String orderId, int newStatus) {
-        String url = "http://192.168.1.35/fissa/Manager/Update_Status_cmd.php";
+        String url = "https://www.fissadelivery.com/fissa/Manager/Update_Status_cmd.php";
 
         // Create a request queue
         RequestQueue requestQueue = Volley.newRequestQueue(this);

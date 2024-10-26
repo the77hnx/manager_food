@@ -43,7 +43,7 @@ import java.util.Map;
 import okhttp3.OkHttpClient;
 
 public class AddNewItemActivity extends AppCompatActivity {
-    private static final String PHP_URL = "http://192.168.1.35/fissa/Manager/Add_Product.php";
+    private static final String PHP_URL = "https://www.fissadelivery.com/fissa/Manager/Add_Product.php";
 
     private static final int PICK_IMAGE_REQUEST = 1;
     private static final int PERMISSION_REQUEST_CODE = 100;

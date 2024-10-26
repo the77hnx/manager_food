@@ -37,7 +37,7 @@ public class AddNewCategoryActivity extends AppCompatActivity {
     private Uri imageUri; // To store the selected image URI
     private OkHttpClient client;
 
-    private static final String PHP_URL = "http://192.168.1.35/fissa/Manager/Add_category.php";
+    private static final String PHP_URL = "https://www.fissadelivery.com/fissa/Manager/Add_category.php";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

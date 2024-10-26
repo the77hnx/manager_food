@@ -168,7 +168,7 @@ public class SignNewShopActivity extends AppCompatActivity {
         RequestBody requestBody = builder.build();
 
         Request request = new Request.Builder()
-                .url("http://192.168.1.35/fissa/Manager/Signup_Magisin.php")
+                .url("https://www.fissadelivery.com/fissa/Manager/Signup_Magisin.php")
                 .post(requestBody)
                 .build();
 

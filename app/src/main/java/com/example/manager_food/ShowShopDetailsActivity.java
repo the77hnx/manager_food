@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Button;
@@ -43,14 +45,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import okhttp3.OkHttpClient;
 
 public class ShowShopDetailsActivity extends AppCompatActivity {
     private static final String PREFS_NAME = "MyPrefs";
     private static final String OFFER_STATUS_KEY = "offer_status";
-    private static final String updateStoreStatusURL = "http://192.168.1.35/fissa/Manager/Status_Magasin.php";
-    private static final String fetchStoreDataURL = "http://192.168.1.35/fissa/Manager/Fetch_Magasin_Information.php";
+    private static final String updateStoreStatusURL = "https://www.fissadelivery.com/fissa/Manager/Status_Magasin.php";
+    private static final String fetchStoreDataURL = "https://www.fissadelivery.com/fissa/Manager/Fetch_Magasin_Information.php";
 
     private RecyclerView recyclerViewCat;
     private RecyclerView recyclerViewItem;
@@ -94,7 +98,7 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
 
         DBHelper dbHelper = new DBHelper(this);
         String userId = dbHelper.getUserId();
-        Log.d("user id = ", userId) ;
+        Log.d("Show Shop Details Activity ", userId) ;
 
         // Set the offerSwitch state and update the offerStatusTextView
         offerSwitch.setChecked(offerStatus);
@@ -184,13 +188,22 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
     }
 
     private void fetchDataFromServer(String userId) {
-        String url = "http://192.168.1.35/fissa/Manager/Fetch_Cat_Prod.php";
+
+        if (userId == null || userId.isEmpty()) {
+            Log.e("Fetch Data", "User ID is null or empty");
+            Toast.makeText(this, "User ID is not available.", Toast.LENGTH_SHORT).show();
+            return; // Exit if userId is invalid
+        }
+
+        String url = "https://www.fissadelivery.com/fissa/Manager/Fetch_Cat_Prod.php";
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         // Create a JSONObject to hold the POST parameters
         JSONObject postData = new JSONObject();
+
         try {
             postData.put("user_id", userId);
+            Log.d("Fetch Data", "User ID: " + userId); // Log the user ID
         } catch (JSONException e) {
             e.printStackTrace();
             Log.e("JSON Error", "Failed to create JSON object for request.");
@@ -202,7 +215,15 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
                 url,
                 postData, // Pass the JSON object as the request body
                 response -> {
+                    Log.d("Post Data", postData.toString());
+
                     try {
+                        if (response.has("error")) {
+                            Log.e("Response Error", response.getString("error"));
+                            Toast.makeText(ShowShopDetailsActivity.this, response.getString("error"), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
                         categoryList.clear();
                         itemList.clear();
                         Log.d("Response", String.valueOf(response));
@@ -275,56 +296,55 @@ public class ShowShopDetailsActivity extends AppCompatActivity {
     }
 
     private void showStoreStatus(String userId) {
-        new AsyncTask<Void, Void, String>() {
-            @Override
-            protected String doInBackground(Void... voids) {
-                try {
-                    URL url = new URL(fetchStoreDataURL); // Use the URL to fetch the store data
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("GET");
-                    connection.setDoInput(true);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Handler handler = new Handler(Looper.getMainLooper());
 
-                    // Prepare the POST data
-                    String postData = "user_id=" + URLEncoder.encode(userId, "UTF-8");
+        executor.execute(() -> {
+            try {
+                String urlWithParams = fetchStoreDataURL + "?user_id=" + URLEncoder.encode(userId, "UTF-8");
+                URL url = new URL(urlWithParams);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setDoInput(true);
 
-                    // Send the POST data
-                    OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-                    writer.write(postData);
-                    writer.flush();
-                    writer.close();
+                // Prepare the POST data
+                String postData = "user_id=" + URLEncoder.encode(userId, "UTF-8");
 
-                    // Read the response
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    StringBuilder result = new StringBuilder();
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        result.append(line);
-                    }
-                    reader.close();
-                    return result.toString();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return null;
+                // Send the POST data
+                OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+                writer.write(postData);
+                writer.flush();
+                writer.close();
+
+                // Read the response
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuilder result = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    result.append(line);
                 }
-            }
+                reader.close();
+                String response = result.toString();
 
-            @Override
-            protected void onPostExecute(String result) {
-                if (result != null) {
-                    try {
-                        JSONObject jsonObject = new JSONObject(result);
-                        // Fetch store status
-                        String status = jsonObject.optString("Statut_magasin");
-                        updateStoreStatusUI(status); // Call method to update the UI
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        Toast.makeText(ShowShopDetailsActivity.this, "Error parsing data", Toast.LENGTH_SHORT).show();
+                handler.post(() -> {
+                    if (response != null) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            String status = jsonObject.optString("Statut_magasin");
+                            updateStoreStatusUI(status);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Toast.makeText(ShowShopDetailsActivity.this, "Error parsing data", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(ShowShopDetailsActivity.this, "Failed to fetch data", Toast.LENGTH_SHORT).show();
                     }
-                } else {
-                    Toast.makeText(ShowShopDetailsActivity.this, "Failed to fetch data", Toast.LENGTH_SHORT).show();
-                }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                handler.post(() -> Toast.makeText(ShowShopDetailsActivity.this, "Failed to fetch data", Toast.LENGTH_SHORT).show());
             }
-        }.execute();
+        });
     }
     private void updateStoreStatus(boolean isOpen, String userId) {
         new AsyncTask<Boolean, Void, Boolean>() {
